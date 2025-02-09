@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Qdrant.Client" Version="1.13.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>

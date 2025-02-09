@@ -1,0 +1,129 @@
+# Visual Studio & .NET Build Artifacts
+bin/
+obj/
+*.user
+*.suo
+*.rsuser
+*.vspx
+*.sln.docstates
+.vscode/
+*.vsconfig
+*.sln.ide
+
+# Logs & Debugging
+logs/
+*.log
+*.tlog
+*.cache
+*.pid
+*.db-journal
+
+# Environment & Secrets
+.env
+.env.local
+.env.development
+.env.production
+secrets.json
+secrets/*.json
+
+# Compiled Binaries & Packages
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.idb
+*.lib
+*.nupkg
+*.snupkg
+*.xlog
+*.cache/
+*.swp
+*.DS_Store
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.assets.json
+.nuget/
+
+# Python Virtual Environments (if used in ML-related tasks)
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Docker & Kubernetes
+.dockerignore
+docker-compose.override.yml
+docker-compose.dev.yml
+docker-compose.test.yml
+docker-compose.prod.yml
+docker-volumes/
+.kube/
+helm-chart/.helmignore
+helm-chart/charts/
+helm-chart/tmpcharts/
+helm-chart/templates/*.bak
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+crash.log
+override.tf
+override.tf.json
+
+# Kubernetes
+k8s/secrets.yml
+k8s/*.bak
+k8s/*.tmp
+
+# PostgreSQL / MySQL / Redis Data (if running locally)
+data/
+postgres-data/
+mysql-data/
+redis-data/
+
+# Qdrant & MinIO
+qdrant-data/
+minio-data/
+
+# RabbitMQ
+rabbitmq-data/
+rabbitmq.log
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+ci/
+build/
+
+# Node Modules (if any frontend is involved)
+node_modules/
+npm-debug.log
+yarn.lock
+pnpm-lock.yaml
+
+# OpenTelemetry & Tracing Data
+otel-data/
+trace-logs/
+profiling-data/
+
+# Local Dev & Testing
+*.testresults
+TestResults/
+coverage/
+coverage.xml
+*.coverlet/
+*.lcov
+*.local*
+
+# Miscellaneous
+Thumbs.db
+*.bak
+*.tmp
+*.swp

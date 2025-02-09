@@ -1,0 +1,26 @@
+{
+    "name": "FlexBOT (.NET)",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+    "forwardPorts": [5672, 5432, 6333],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-dotnettools.csdevkit",
+                "josefpihrt-vscode.roslynator",
+                "humao.rest-client",
+                "eamodio.gitlens",
+                "ms-azuretools.vscode-docker",
+                "redhat.vscode-yaml",
+                "hashicorp.terraform"
+            ]
+        }
+    },
+    "remoteEnv": {
+        "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT": "false"
+    }
+  }

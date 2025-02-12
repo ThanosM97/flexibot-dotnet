@@ -1,18 +1,24 @@
+using ParserWorker.Services;
+
 namespace ParserWorker;
 
-public class Worker(ILogger<Worker> logger) : BackgroundService
+public class Worker(RabbitMQConsumer consumer, ILogger<Worker> logger) 
+    : BackgroundService
 {
+    private readonly RabbitMQConsumer _consumer = consumer;
     private readonly ILogger<Worker> _logger = logger;
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            }
-            await Task.Delay(60*1000, stoppingToken);
+            _logger.LogInformation("Starting RabbitMQ consumer");
+            await _consumer.StartConsumingAsync();
+            _logger.LogInformation("RabbitMQ consumer started");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start RabbitMQ consumer");
         }
     }
 }

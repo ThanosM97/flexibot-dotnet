@@ -5,7 +5,7 @@ using RabbitMQ.Client;
 var builder = Host.CreateApplicationBuilder(args);
 
 // Configure RabbitMQ connection first
-var factory = new ConnectionFactory 
+var factory = new ConnectionFactory
 {
     HostName = builder.Configuration.GetSection("RABBITMQ")["HOST"]
 };

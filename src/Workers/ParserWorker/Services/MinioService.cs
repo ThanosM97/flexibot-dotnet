@@ -42,7 +42,7 @@ namespace ParserWorker.Services
                 .WithBucket(BucketName)
                 .WithObject(objectName)
                 .WithCallbackStream(stream => stream.CopyTo(memoryStream));
-                
+
             await _minioClient.GetObjectAsync(args);
             memoryStream.Position = 0;
             return memoryStream;

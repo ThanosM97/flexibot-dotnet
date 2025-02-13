@@ -2,7 +2,7 @@ using ParserWorker.Services;
 
 namespace ParserWorker;
 
-public class Worker(RabbitMQConsumer consumer, ILogger<Worker> logger) 
+public class Worker(RabbitMQConsumer consumer, ILogger<Worker> logger)
     : BackgroundService
 {
     private readonly RabbitMQConsumer _consumer = consumer;

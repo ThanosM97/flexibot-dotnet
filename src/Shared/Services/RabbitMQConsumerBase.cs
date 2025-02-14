@@ -10,7 +10,7 @@ namespace Shared.Services
     /// A generic base class for consuming messages from RabbitMQ.
     /// </summary>
     /// <typeparam name="TEvent">The type of event this consumer processes.</typeparam>
-    public abstract class RabbitMQConsumerBase<TEvent>
+    public abstract class RabbitMQConsumerBase<TEvent> : IAsyncDisposable
     {
         protected readonly IConnection Connection;
         protected readonly IChannel Channel;
@@ -38,6 +38,12 @@ namespace Shared.Services
         {
             var json = Encoding.UTF8.GetString(body);
             return JsonSerializer.Deserialize<TEvent>(json)!;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await Channel.CloseAsync();
+            await Connection.CloseAsync();
         }
     }
 }

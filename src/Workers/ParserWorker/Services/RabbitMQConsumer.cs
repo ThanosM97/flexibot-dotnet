@@ -20,7 +20,7 @@ namespace ParserWorker.Services
         IConnection connection,
         MinioService minioService,
         DocumentParser parser,
-        ILogger<RabbitMQConsumer> logger) : RabbitMQConsumerBase<DocumentUploadedEvent>(connection, "document_uploaded"), IAsyncDisposable
+        ILogger<RabbitMQConsumer> logger) : RabbitMQConsumerBase<DocumentUploadedEvent>(connection, "document_uploaded")
     {
         private readonly IConnection _connection = connection;
         private readonly MinioService _minioService = minioService;
@@ -73,12 +73,6 @@ namespace ParserWorker.Services
                 autoAck: false,
                 consumer: consumer
             );
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await Channel.CloseAsync();
-            await _connection.CloseAsync();
         }
     }
 }

@@ -19,7 +19,7 @@ namespace ChunkerWorker.Services
     public class RabbitMQConsumer(
         IConnection connection,
         DocumentChunker chunker,
-        ILogger<RabbitMQConsumer> logger) : RabbitMQConsumerBase<DocumentParsedEvent>(connection, "document_parsed"), IAsyncDisposable
+        ILogger<RabbitMQConsumer> logger) : RabbitMQConsumerBase<DocumentParsedEvent>(connection, "document_parsed")
     {
         private readonly IConnection _connection = connection;
         private readonly DocumentChunker _chunker = chunker;
@@ -71,12 +71,6 @@ namespace ChunkerWorker.Services
                 autoAck: false,
                 consumer: consumer
             );
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await Channel.CloseAsync();
-            await _connection.CloseAsync();
         }
     }
 }

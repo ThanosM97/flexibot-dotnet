@@ -22,4 +22,9 @@ public class DocumentChunk
     /// Gets or sets the content of the chunk, representing the text extracted from the document.
     /// </summary>
     public required string Content { get; set; }
+
+    /// <summary>
+    /// Gets or sets the embedding vector associated with the chunk, used for similarity searches.
+    /// </summary>
+    public float[] Embedding { get; set; } = [];
 }

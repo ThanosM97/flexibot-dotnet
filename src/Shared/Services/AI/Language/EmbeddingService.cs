@@ -10,13 +10,14 @@ namespace Shared.Services.AI.Language
     /// <summary>
     /// Constructs the service using the OllamaSharp client.
     /// </summary>
-    public class OllamaEmbeddingService : IEmbeddingService
+    public class OllamaEmbeddingService :  OllamaService, IEmbeddingService
     {
         private readonly OllamaApiClient _client;
         public OllamaEmbeddingService(IConfiguration config)
         {
             IConfigurationSection ollamaConfig = config.GetSection("OLLAMA");
 
+            // Validate the Ollama configuration
             if (string.IsNullOrWhiteSpace(ollamaConfig["ENDPOINT"]))
             {
                 throw new OllamaException("Ollama endpoint env variable has not been set.");
@@ -26,7 +27,12 @@ namespace Shared.Services.AI.Language
             {
                 throw new OllamaException("Ollama embedding model env variable has not been set.");
             }
+
+            // Initialize the Ollama client
             _client = new(ollamaConfig["ENDPOINT"], ollamaConfig["EMBEDDING_MODEL"]);
+
+            // Pull the model
+            PullModel(ollamaConfig["ENDPOINT"], ollamaConfig["EMBEDDING_MODEL"]);
         }
 
 

@@ -86,7 +86,6 @@ services:
   ollama:
     image: "ollama/ollama"
     container_name: flexbot_ollama
-    command: sh -c "ollama pull all-minilm && ollama pull llama3.2 && ollama serve"
     volumes:
       - ollama_data:/root/.ollama
     ports:

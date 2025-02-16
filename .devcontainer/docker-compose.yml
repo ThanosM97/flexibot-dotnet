@@ -14,7 +14,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=flexbot;Username=postgres;Password=postgres
-      - QDRANT__HOST=http://qdrant:6333
+      - SEARCH__PROVIDER=Qdrant
+      - SEARCH__DOCUMENT_COLLECTION=Documents
+      - SEARCH__VECTOR_SIZE=384
+      - QDRANT__HOST=qdrant
+      - QDRANT__PORT=6334
       - RABBITMQ__HOST=rabbitmq
       - MINIO__ENDPOINT=minio:9000
       - MINIO__ACCESS_KEY=minioadmin
@@ -58,6 +62,7 @@ services:
     container_name: flexbot_qdrant
     ports:
       - "6333:6333"
+      - "6334:6334"  # gRPC
     networks:
       - flexbot_network
     volumes:

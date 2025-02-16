@@ -20,12 +20,11 @@ namespace Shared.Factories.AI.Language
         /// </exception>
         public static IEmbeddingService GetEmbeddingService(string provider, IConfiguration config)
         {
-            if (provider == "Ollama")
+            return provider.ToLower() switch
             {
-                return new OllamaEmbeddingService(config);
-            }
-
-            throw new NotSupportedException("The specified embedding provider is not supported.");
+                "ollama" => new OllamaEmbeddingService(config),
+                _ => throw new NotSupportedException($"Unsupported embedding provider: {provider}")
+            };
         }
     }
 }

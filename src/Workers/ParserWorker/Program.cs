@@ -10,7 +10,7 @@ var factory = new ConnectionFactory
     HostName = builder.Configuration.GetSection("RABBITMQ")["HOST"]
 };
 var connection = factory.CreateConnectionAsync();
-builder.Services.AddSingleton(connection);
+builder.Services.AddSingleton(connection.Result);
 
 // Add services
 builder.Services.AddSingleton<DocumentParser>();

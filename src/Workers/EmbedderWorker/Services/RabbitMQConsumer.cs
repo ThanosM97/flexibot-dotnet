@@ -35,11 +35,8 @@ namespace EmbedderWorker.Services
                     var message = DeserializeEvent(ea.Body.ToArray());
                     _logger.LogInformation($"Generating embeddings for document: {message.FileName}");
 
-                    // Get text content
-                    List<DocumentChunk> chunks = message.Chunks;
-
-                    // Create embeddings
-                    float[][] embeddings = await _embedder.EmbedChunksAsync(chunks);
+                    // Generate embeddings
+                    await _embedder.EmbedChunksAsync(message.Chunks);
 
                     // Publish DocumentChunkedEvent
                     var embeddedEvent = new DocumentEmbeddedEvent(
@@ -47,10 +44,10 @@ namespace EmbedderWorker.Services
                         ObjectStorageKey: message.ObjectStorageKey,
                         FileName: message.FileName,
                         Chunks: message.Chunks,
-                        Embeddings: embeddings,
                         EmbeddedAt: DateTime.UtcNow
                     );
 
+                    // Publish document embedded event
                     await Channel.BasicPublishAsync(
                         exchange: "",
                         routingKey: "document_embedded",

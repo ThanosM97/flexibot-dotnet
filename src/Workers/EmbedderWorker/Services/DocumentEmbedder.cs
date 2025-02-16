@@ -32,11 +32,15 @@ namespace EmbedderWorker.Services
         /// Asynchronously generates embedding vectors for a list of document chunks.
         /// </summary>
         /// <param name="chunks">A list of <see cref="DocumentChunk"/>s to embed.</param>
-        /// <returns>A task representing the asynchronous operation, containing a 2D array of embedding vectors.</returns>
-        public async Task<float[][]> EmbedChunksAsync(List<DocumentChunk> chunks)
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task EmbedChunksAsync(List<DocumentChunk> chunks)
         {
-            var chunkTexts = chunks.Select(chunk => chunk.Content).ToList();
-            return await _client.GenerateEmbeddingsAsync(chunkTexts);
+            var embeddingTasks = chunks.Select(async chunk =>
+            {
+                chunk.Embedding = await _client.GenerateEmbeddingAsync(chunk.Content);
+            }).ToList();
+
+            await Task.WhenAll(embeddingTasks);
         }
     }
 }

@@ -14,9 +14,6 @@ namespace Shared.Events
     ///      A list of <see cref="DocumentChunk"/> objects representing the individual parts
     ///      into which the document has been divided.
     /// </param>
-    /// <param name="Embeddings">
-    ///      An array of embedding vectors of type float, associated with the chunks.
-    /// </param>
     /// <param name="EmbeddedAt">
     ///      The date and time when the document was embedded.
     ///  </param>
@@ -25,7 +22,6 @@ namespace Shared.Events
         string ObjectStorageKey,
         string FileName,
         List<DocumentChunk> Chunks,
-        float [][] Embeddings,
         DateTime EmbeddedAt
     );
 }

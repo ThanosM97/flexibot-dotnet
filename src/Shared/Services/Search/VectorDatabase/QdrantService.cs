@@ -28,7 +28,7 @@ namespace Shared.Services.Search.VectorDatabase
             if (
                 string.IsNullOrWhiteSpace(qdrantConfig["HOST"]) ||
                 string.IsNullOrWhiteSpace(qdrantConfig["PORT"]) ||
-                int.TryParse(qdrantConfig["PORT"], out int _qdrantPort)
+                !int.TryParse(qdrantConfig["PORT"], out int _qdrantPort)
             )
             {
                 throw new Exception("Invalid Qdrant Configuration.");

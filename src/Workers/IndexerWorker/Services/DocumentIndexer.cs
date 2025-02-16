@@ -25,7 +25,7 @@ namespace IndexerWorker.Services
                 string.IsNullOrWhiteSpace(searchConfig["PROVIDER"]) ||
                 string.IsNullOrWhiteSpace(searchConfig["DOCUMENT_COLLECTION"]) ||
                 string.IsNullOrWhiteSpace(searchConfig["VECTOR_SIZE"]) ||
-                int.TryParse(searchConfig["VECTOR_SIZE"], out int vectorSize)
+                !int.TryParse(searchConfig["VECTOR_SIZE"], out int vectorSize)
             )
             {
                 throw new Exception("Invalid search service configuration.");

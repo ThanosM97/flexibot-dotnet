@@ -38,7 +38,7 @@ namespace ParserWorker.Services
                     _logger.LogInformation($"Processing document: {message.FileName}");
 
                     // Download file from MinIO
-                    using var fileStream = await _minioService.DownloadFileAsync(message.ObjectStorageKey);
+                    using var fileStream = await _minioService.DownloadFileAsync(message.FileName);
 
                     // Parse document
                     var textContent = _parser.ParseDocument(fileStream, message.FileName);

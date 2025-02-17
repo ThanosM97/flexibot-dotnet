@@ -1,16 +1,16 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Minio;
 using Minio.DataModel.Args;
+using Shared.Interfaces.Storage;
 
-namespace ParserWorker.Services
+
+namespace Shared.Services.Storage
 {
     /// <summary>
-    /// Provides functionality to interact with a MinIO server, such as downloading files from a specified bucket.
+    /// Service for handling file storage operations with MinIO.
     /// </summary>
-    /// <remarks>
-    /// This service encapsulates the creation and configuration of a <see cref="IMinioClient"/> using settings from
-    /// the application configuration. It currently supports downloading a file from a pre-defined bucket ("documents").
-    /// </remarks>
-    public class MinioService
+    public class MinioService : IStorageService
     {
         private readonly IMinioClient _minioClient;
         private const string BucketName = "documents";
@@ -18,23 +18,38 @@ namespace ParserWorker.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="MinioService"/> class.
         /// </summary>
-        /// <param name="config">
-        /// The application configuration containing the MinIO settings. It must have a "MINIO" section with the keys:
-        /// <c>ENDPOINT</c>, <c>ACCESS_KEY</c>, and <c>SECRET_KEY</c>.
-        /// </param>
-        /// <remarks>
-        /// The constructor reads the MinIO configuration from the provided <paramref name="config"/> and creates a
-        /// <see cref="IMinioClient"/> instance which is used for interacting with the MinIO server.
-        /// </remarks>
+        /// <param name="config">The configuration object to get MinIO settings.</param>
         public MinioService(IConfiguration config)
         {
+            // Retrieve MinIO configuration settings
             var minioConfig = config.GetSection("MINIO");
+
+            // Initialize the MinIO client
             _minioClient = new MinioClient()
                 .WithEndpoint(minioConfig["ENDPOINT"])
                 .WithCredentials(minioConfig["ACCESS_KEY"], minioConfig["SECRET_KEY"])
                 .Build();
         }
 
+
+        /// <inheritdoc/>
+        public async Task UploadFileAsync(string objectKey, IFormFile file)
+        {
+            // Open a read stream
+            using var stream = file.OpenReadStream();
+
+            var putObjectArgs = new PutObjectArgs()
+                .WithBucket(BucketName)
+                .WithObject(objectKey)
+                .WithStreamData(stream)
+                .WithObjectSize(file.Length);
+
+            // Upload the file to MinIO
+            await _minioClient.PutObjectAsync(putObjectArgs);
+        }
+
+
+        /// <inheritdoc/>
         public async Task<Stream> DownloadFileAsync(string objectName)
         {
             var memoryStream = new MemoryStream();
@@ -43,8 +58,12 @@ namespace ParserWorker.Services
                 .WithObject(objectName)
                 .WithCallbackStream(stream => stream.CopyTo(memoryStream));
 
+            // Download the object into the memory stream
             await _minioClient.GetObjectAsync(args);
+
+            // Reset the stream position
             memoryStream.Position = 0;
+
             return memoryStream;
         }
     }

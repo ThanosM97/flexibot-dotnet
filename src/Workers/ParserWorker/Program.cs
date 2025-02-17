@@ -1,6 +1,7 @@
 using ParserWorker;
 using ParserWorker.Services;
 using RabbitMQ.Client;
+using Shared.Services.Storage;
 
 var builder = Host.CreateApplicationBuilder(args);
 

@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using Shared.Events;
 using Shared.Services;
+using Shared.Services.Storage;
 
 namespace ParserWorker.Services
 {
@@ -22,7 +23,6 @@ namespace ParserWorker.Services
         DocumentParser parser,
         ILogger<RabbitMQConsumer> logger) : RabbitMQConsumerBase<DocumentUploadedEvent>(connection, "document_uploaded")
     {
-        private readonly IConnection _connection = connection;
         private readonly MinioService _minioService = minioService;
         private readonly DocumentParser _parser = parser;
         private readonly ILogger<RabbitMQConsumer> _logger = logger;

@@ -35,14 +35,58 @@ namespace Shared.Services.Database
         /// <inheritdoc/>
         public async Task InsertDocumentAsync(DocumentMetadata document)
         {
+            // Add the document to the DbSet
             _context.Documents.Add(document);
+
+            // Save the changes to the database
             await _context.SaveChangesAsync();
         }
 
         /// <inheritdoc/>
         public async Task<DocumentMetadata> GetDocumentAsync(string documentId)
         {
-            return await _context.Documents.FindAsync(documentId);
+            // Find the document by its ID. If not found, throw a KeyNotFoundException
+            var document = await _context.Documents.FindAsync(documentId) ?? throw new KeyNotFoundException(
+                $"Document with ID {documentId} not found.");
+
+            return document;
+        }
+
+        /// <inheritdoc/>
+        public async Task UpdateDocumentAsync(string documentId, Dictionary<string, object> updates)
+        {
+            // Find the document by its ID. If not found, throw a KeyNotFoundException
+            var document = await _context.Documents.FindAsync(documentId) ?? throw new KeyNotFoundException(
+                $"Document with ID {documentId} not found.");
+
+            // Iterate over each key-value pair in the updates dictionary
+            foreach (var (key, value) in updates)
+            {
+                // Get the property info of the document's metadata by the key
+                // If the property does not exist, throw an ArgumentException
+                var property = typeof(DocumentMetadata).GetProperty(key) ?? throw new ArgumentException(
+                    $"Invalid field name: {key}");
+
+                // Set the value of the property to the new value
+                property.SetValue(document, value);
+            }
+
+            // Save the changes to the database
+            await _context.SaveChangesAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteDocumentAsync(string documentId)
+        {
+            // Find the document by its ID. If not found, throw a KeyNotFoundException
+            var document = await _context.Documents.FindAsync(documentId) ?? throw new KeyNotFoundException(
+                $"Document with ID {documentId} not found.");
+
+            // Remove the document from the DbSet
+            _context.Documents.Remove(document);
+
+            // Save the changes to the database
+            await _context.SaveChangesAsync();
         }
     }
 }

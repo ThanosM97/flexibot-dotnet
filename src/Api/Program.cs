@@ -10,6 +10,10 @@ using Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add logging services
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // Add MVC services
 builder.Services.AddControllers();
 
@@ -31,6 +35,9 @@ builder.Services.AddSingleton<RabbitMQPublisher>();
 builder.Services.AddScoped<IDocumentRepository, PostgresRepository>();
 
 var app = builder.Build();
+
+// Ensure RabbitMQPublisher is initialized at startup
+var publisher = app.Services.GetRequiredService<RabbitMQPublisher>();
 
 // Map controllers to routes
 app.MapControllers();

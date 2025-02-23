@@ -4,7 +4,6 @@ using System.Text.Json;
 
 using Shared.Events;
 using Shared.Services;
-using Shared.Models;
 
 namespace EmbedderWorker.Services
 {
@@ -49,7 +48,7 @@ namespace EmbedderWorker.Services
 
                     // Publish document embedded event
                     await Channel.BasicPublishAsync(
-                        exchange: "",
+                        exchange: "documents",
                         routingKey: "document_embedded",
                         body: JsonSerializer.SerializeToUtf8Bytes(embeddedEvent)
                     );

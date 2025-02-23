@@ -38,7 +38,7 @@ namespace ParserWorker.Services
                     _logger.LogInformation($"Processing document: {message.FileName}");
 
                     // Download file from MinIO
-                    using var fileStream = await _minioService.DownloadFileAsync(message.FileName);
+                    using var fileStream = await _minioService.DownloadFileAsync(message.ObjectStorageKey);
 
                     // Parse document
                     var textContent = _parser.ParseDocument(fileStream, message.FileName);
@@ -53,7 +53,7 @@ namespace ParserWorker.Services
                     );
 
                     await Channel.BasicPublishAsync(
-                        exchange: "",
+                        exchange: "documents",
                         routingKey: "document_parsed",
                         body: JsonSerializer.SerializeToUtf8Bytes(parsedEvent)
                     );

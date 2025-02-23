@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
@@ -12,17 +13,20 @@ namespace Shared.Services
     {
         protected readonly IChannel Channel;
         protected readonly string ExchangeName;
+        private readonly ILogger<RabbitMQPublisher> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitMQPublisher"/> class.
         /// </summary>
         /// <param name="connection">The RabbitMQ connection.</param>
         /// <param name="exchangeName">The name of the exchange to publish to.</param>
-        public RabbitMQPublisher(IConnection connection, string exchangeName = "")
+        public RabbitMQPublisher(IConnection connection, ILogger<RabbitMQPublisher> logger, string exchangeName = "documents")
         {
             ExchangeName = exchangeName;
+            _logger = logger;
+
             Channel = connection.CreateChannelAsync().Result;
-            Channel.ExchangeDeclareAsync(exchange: ExchangeName, type: ExchangeType.Topic, durable: true);
+            Channel.ExchangeDeclareAsync(exchange: ExchangeName, type: ExchangeType.Direct, durable: true);
         }
 
         /// <summary>
@@ -32,20 +36,26 @@ namespace Shared.Services
         /// <param name="message">The message instance.</param>
         /// <param name="routingKey">The routing key for the message.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public virtual Task PublishAsync<T>(T message, string routingKey)
+        public virtual async Task PublishAsync<T>(T message, string routingKey)
         {
             var body = SerializeEvent(message);
 
-            Channel.BasicPublishAsync(
-                exchange: ExchangeName,
-                routingKey: routingKey,
-                mandatory: true,
-                basicProperties: null as BasicProperties,
-                body: body
-            );
-
-            // Since BasicPublish is synchronous, we wrap the operation in a completed Task.
-            return Task.CompletedTask;
+            try
+            {
+                var basicProperties = new BasicProperties();
+                await Channel.BasicPublishAsync(
+                    exchange: ExchangeName,
+                    routingKey: routingKey,
+                    mandatory: true,
+                    basicProperties: basicProperties,
+                    body: body
+                );
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details
+                _logger.LogError($"Error occurred while publishing message: {ex}");
+            }
         }
 
         /// <summary>

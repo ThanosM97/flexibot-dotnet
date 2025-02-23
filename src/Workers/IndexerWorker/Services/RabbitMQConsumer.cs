@@ -53,7 +53,7 @@ namespace IndexerWorker.Services
 
                     // Publish document indexed event
                     await Channel.BasicPublishAsync(
-                        exchange: "",
+                        exchange: "documents",
                         routingKey: "document_indexed",
                         body: JsonSerializer.SerializeToUtf8Bytes(indexedEvent)
                     );

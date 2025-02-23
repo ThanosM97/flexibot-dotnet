@@ -21,7 +21,15 @@ namespace Shared.Services
             Connection = connection;
             Channel = connection.CreateChannelAsync().Result;
             QueueName = queueName;
+
+            // Declare the exchange
+            Channel.ExchangeDeclareAsync(exchange: "documents", type: ExchangeType.Direct, durable: true);
+
+            // Declare the queue
             Channel.QueueDeclareAsync(queue: queueName, durable: true, exclusive: false, autoDelete: false);
+
+            // Bind the queue to the exchange
+            Channel.QueueBindAsync(queue: queueName, exchange: "documents", routingKey: queueName);
         }
 
         /// <summary>

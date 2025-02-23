@@ -21,7 +21,6 @@ namespace ChunkerWorker.Services
         DocumentChunker chunker,
         ILogger<RabbitMQConsumer> logger) : RabbitMQConsumerBase<DocumentParsedEvent>(connection, "document_parsed")
     {
-        private readonly IConnection _connection = connection;
         private readonly DocumentChunker _chunker = chunker;
         private readonly ILogger<RabbitMQConsumer> _logger = logger;
 
@@ -51,7 +50,7 @@ namespace ChunkerWorker.Services
                     );
 
                     await Channel.BasicPublishAsync(
-                        exchange: "",
+                        exchange: "documents",
                         routingKey: "document_chunked",
                         body: JsonSerializer.SerializeToUtf8Bytes(chunkedEvent)
                     );

@@ -38,6 +38,9 @@ namespace Shared.Services.Storage
             // Open a read stream
             using var stream = file.OpenReadStream();
 
+            // Reset stream position
+            stream.Position = 0;
+
             var putObjectArgs = new PutObjectArgs()
                 .WithBucket(BucketName)
                 .WithObject(objectKey)

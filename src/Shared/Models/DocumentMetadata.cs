@@ -65,15 +65,12 @@ namespace Shared.Models
         public string? Tags { get; set; }
 
         /// <summary>
-        /// Gets or sets the current status of the document.
-        /// </summary>
-        [Column("status")]
-        public string Status { get; set; } = "Uploaded";  // Uploaded -> Processing -> Indexed/Failed
-
-        /// <summary>
         /// Gets or sets the status code representing the document's current state.
         /// </summary>
-        [Column("status_code")]
-        public int StatusCode { get; set; } = 0;  // 0: Uploaded, 1: Processing, 2: Indexed, -1: Failed
+        /// <remarks>
+        /// 0: Uploaded, 1: Parsed, 2: Chunked, 3: Embedded, 4: Indexed, -1: Failed
+        /// </remarks>
+        [Column("status")]
+        public int Status { get; set; } = 0;
     }
 }

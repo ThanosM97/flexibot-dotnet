@@ -84,10 +84,10 @@ public class DocumentsController(
         if (document == null)
             return NotFound();
 
-        if (document.StatusCode == 2)
+        if (document.Status == 2)
             return Ok(new { Status = "Completed" });
 
-        if (document.StatusCode == -1)
+        if (document.Status == -1)
             return BadRequest(new { Status = "Failed" });
 
         return Accepted(new { Status = "Processing" });

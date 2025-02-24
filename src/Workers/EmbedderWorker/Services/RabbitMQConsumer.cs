@@ -29,9 +29,11 @@ namespace EmbedderWorker.Services
             var consumer = new AsyncEventingBasicConsumer(Channel);
             consumer.ReceivedAsync += async(model, ea) =>
             {
+                // Get message from queue
+                var message = DeserializeEvent(ea.Body.ToArray());
+
                 try
                 {
-                    var message = DeserializeEvent(ea.Body.ToArray());
                     _logger.LogInformation($"Generating embeddings for document: {message.FileName}");
 
                     // Generate embeddings
@@ -55,11 +57,17 @@ namespace EmbedderWorker.Services
 
                     await Channel.BasicAckAsync(ea.DeliveryTag, false);
                     _logger.LogInformation($"Generated embeddings for {message.FileName}");
+
+                    // Publish embedded document status event
+                    await PublishDocumentStatusEvent(message.DocumentId, DocumentStatus.Embedded);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error while generating embeddings for document");
                     await Channel.BasicNackAsync(ea.DeliveryTag, false, false);
+
+                    // Publish failed document status event
+                    await PublishDocumentStatusEvent(message.DocumentId, DocumentStatus.Failed);
                 }
             };
 

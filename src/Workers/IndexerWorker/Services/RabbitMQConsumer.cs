@@ -32,9 +32,11 @@ namespace IndexerWorker.Services
             var consumer = new AsyncEventingBasicConsumer(Channel);
             consumer.ReceivedAsync += async(model, ea) =>
             {
+                // Get message from queue
+                var message = DeserializeEvent(ea.Body.ToArray());
+
                 try
                 {
-                    var message = DeserializeEvent(ea.Body.ToArray());
                     _logger.LogInformation($"Indexing document: {message.FileName}");
 
                     // Get chunks
@@ -61,12 +63,18 @@ namespace IndexerWorker.Services
                     // Acknowledge the message processing is complete
                     await Channel.BasicAckAsync(ea.DeliveryTag, false);
                     _logger.LogInformation($"Indexed document {message.FileName}");
+
+                    // Publish indexed document status event
+                    await PublishDocumentStatusEvent(message.DocumentId, DocumentStatus.Indexed);
                 }
                 catch (Exception ex)
                 {
                     // Log the error and nack the message without requeueing
                     _logger.LogError(ex, "Error while indexing document");
                     await Channel.BasicNackAsync(ea.DeliveryTag, false, false);
+
+                    // Publish failed document status event
+                    await PublishDocumentStatusEvent(message.DocumentId, DocumentStatus.Failed);
                 }
             };
 

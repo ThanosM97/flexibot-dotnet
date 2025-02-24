@@ -29,9 +29,11 @@ namespace ChunkerWorker.Services
             var consumer = new AsyncEventingBasicConsumer(Channel);
             consumer.ReceivedAsync += async(model, ea) =>
             {
+                // Get message from queue
+                var message = DeserializeEvent(ea.Body.ToArray());
+
                 try
                 {
-                    var message = DeserializeEvent(ea.Body.ToArray());
                     _logger.LogInformation($"Chunking document: {message.FileName}");
 
                     // Get text content
@@ -57,11 +59,17 @@ namespace ChunkerWorker.Services
 
                     await Channel.BasicAckAsync(ea.DeliveryTag, false);
                     _logger.LogInformation($"Chunked {message.FileName}");
+
+                    // Publish chunked document status event
+                    await PublishDocumentStatusEvent(message.DocumentId, DocumentStatus.Chunked);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error chunking document");
                     await Channel.BasicNackAsync(ea.DeliveryTag, false, false);
+
+                    // Publish failed document status event
+                    await PublishDocumentStatusEvent(message.DocumentId, DocumentStatus.Failed);
                 }
             };
 

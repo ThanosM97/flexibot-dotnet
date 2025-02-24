@@ -32,9 +32,11 @@ namespace ParserWorker.Services
             var consumer = new AsyncEventingBasicConsumer(Channel);
             consumer.ReceivedAsync += async (model, ea) =>
             {
+                // Get message from queue
+                var message = DeserializeEvent(ea.Body.ToArray());
+
                 try
                 {
-                    var message = DeserializeEvent(ea.Body.ToArray());
                     _logger.LogInformation($"Processing document: {message.FileName}");
 
                     // Download file from MinIO
@@ -51,7 +53,6 @@ namespace ParserWorker.Services
                         ParsedAt: DateTime.UtcNow,
                         ParsedTextContent: textContent
                     );
-
                     await Channel.BasicPublishAsync(
                         exchange: "documents",
                         routingKey: "document_parsed",
@@ -60,11 +61,17 @@ namespace ParserWorker.Services
 
                     await Channel.BasicAckAsync(ea.DeliveryTag, false);
                     _logger.LogInformation($"Processed {message.FileName}");
+
+                    // Publish parsed document status event
+                    await PublishDocumentStatusEvent(message.DocumentId, DocumentStatus.Parsed);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error processing document");
                     await Channel.BasicNackAsync(ea.DeliveryTag, false, false);
+
+                    // Publish failed document status event
+                    await PublishDocumentStatusEvent(message.DocumentId, DocumentStatus.Failed);
                 }
             };
 

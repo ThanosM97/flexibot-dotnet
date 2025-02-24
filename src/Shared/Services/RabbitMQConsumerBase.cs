@@ -1,8 +1,9 @@
-// Shared/Services/RabbitMQConsumerBase.cs
+using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
+
+using Shared.Events;
+
 
 namespace Shared.Services
 {
@@ -52,6 +53,28 @@ namespace Shared.Services
         {
             await Channel.CloseAsync();
             await Connection.CloseAsync();
+        }
+
+        /// <summary>
+        /// Publishes a document status event to a message channel.
+        /// </summary>
+        /// <param name="documentId">The unique identifier of the document.</param>
+        /// <param name="status">The status of the document.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        protected async Task PublishDocumentStatusEvent(string documentId, DocumentStatus status)
+        {
+            // Create a new DocumentStatusEvent with the provided document ID and status
+            DocumentStatusEvent statusEvent = new (
+                DocumentId: documentId,
+                EventStatus: (int)status
+            );
+
+            // Publish the event to the specified exchange and routing key
+            await Channel.BasicPublishAsync(
+                exchange: "documents",
+                routingKey: "document_status",
+                body: JsonSerializer.SerializeToUtf8Bytes(statusEvent)
+            );
         }
     }
 }

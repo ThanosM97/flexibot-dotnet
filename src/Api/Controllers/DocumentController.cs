@@ -50,7 +50,7 @@ public class DocumentsController(
             Tags = tags?.Trim()
         };
 
-        // Upload file to storage and insert metadata into the database.
+        // Upload file to storage and insert metadata into the database
         await _minioStorageService.UploadFileAsync(documentMetadata.ObjectStorageKey, file);
         await _documentRepository.InsertDocumentAsync(documentMetadata);
 
@@ -65,7 +65,7 @@ public class DocumentsController(
         // Publish the document uploaded event
         await _publisher.PublishAsync(documentUploadedEvent, "document_uploaded");
 
-        // Return an Accepted response with the job ID.
+        // Return an Accepted response with the job ID
         return Accepted(new { JobId = documentMetadata.DocumentId });
     }
 
@@ -74,13 +74,13 @@ public class DocumentsController(
     /// </summary>
     /// <param name="jobId">The ID of the job to check status for.</param>
     /// <returns>An IActionResult indicating the document's upload status.</returns>
-    [HttpGet("{jobId}/status")]
+    [HttpGet("status/{jobId}")]
     public async Task<IActionResult> GetUploadStatus(string jobId)
     {
-        // Retrieve the document from the database using the job ID.
+        // Retrieve the document from the database using the job ID
         var document = await _documentRepository.GetDocumentAsync(jobId);
 
-        // Check if the document exists and return the appropriate status.
+        // Check if the document exists and return the appropriate status
         if (document == null)
             return NotFound();
 
@@ -92,4 +92,86 @@ public class DocumentsController(
 
         return Accepted(new { Status = "Processing" });
     }
+
+        /// <summary>
+        /// Retrieves a list of all documents' metadata.
+        /// </summary>
+        /// <returns>A list of documents' metadata.</returns>
+        [HttpGet("list")]
+        public async Task<IActionResult> GetDocumentsList()
+        {
+            // Retrieve the list of documents from the repository
+            var documents = await _documentRepository.ListDocumentsAsync();
+
+            // Check if there are any documents
+            if (documents == null || documents.Count == 0)
+            return NotFound(new { Message = "No documents found." });
+
+            // Select specific fields to return
+            var documentList = documents.Select(doc => new
+            {
+                doc.DocumentId,
+                doc.FileName,
+                doc.Extension,
+                doc.Size
+            });
+
+            // Return the list of documents with specific fields
+            return Ok(documentList);
+        }
+
+        /// <summary>
+        /// Downloads a document by its document ID.
+        /// </summary>
+        /// <param name="documentId">The ID of the document to download.</param>
+        /// <returns></returns>
+        [HttpGet("download/{documentId}")]
+        public async Task<IActionResult> DownloadDocument(string documentId)
+        {
+            // Retrieve the document from the database using the document ID
+            var document = await _documentRepository.GetDocumentAsync(documentId);
+
+            // Check if the document exists
+            if (document == null)
+                return NotFound(new { Message = "Document not found." });
+
+            // Download the file from storage
+            var fileStream = await _minioStorageService.DownloadFileAsync(document.ObjectStorageKey);
+
+            // Return the file as a stream
+            return File(fileStream, document.ContentType, document.FileName);
+        }
+
+        /// <summary>
+        /// Deletes a document by its document ID.
+        /// </summary>
+        /// <param name="documentId">The ID of the document to delete.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        [HttpDelete("delete/{documentId}")]
+        public async Task<IActionResult> DeleteDocument(string documentId)
+        {
+            // Retrieve the document from the database using the document ID
+            var document = await _documentRepository.GetDocumentAsync(documentId);
+
+            // Check if the document exists
+            if (
+                document == null ||
+                document.Status == (int)DocumentStatus.Deleted ||
+                document.Status == (int)DocumentStatus.Failed
+            )
+                return NotFound(new { Message = "Document not found." });
+
+            // Update the document status to Deleted
+            await _documentRepository.UpdateDocumentAsync(documentId, new Dictionary<string, object>
+            {
+                { "Status", DocumentStatus.Deleted }
+            });
+
+            // Publish a document deleted event
+            await _publisher.PublishAsync(
+                new DocumentDeletedEvent(documentId, DateTime.UtcNow), "document_deleted");
+
+            // Return a Ok response indicating the document was deleted
+            return Ok();
+        }
 }

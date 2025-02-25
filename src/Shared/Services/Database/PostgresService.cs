@@ -53,6 +53,13 @@ namespace Shared.Services.Database
         }
 
         /// <inheritdoc/>
+        public async Task<List<DocumentMetadata>> ListDocumentsAsync()
+        {
+            // Retrieve all documents from the database
+            return await _context.Documents.ToListAsync();
+        }
+
+        /// <inheritdoc/>
         public async Task UpdateDocumentAsync(string documentId, Dictionary<string, object> updates)
         {
             // Find the document by its ID. If not found, throw a KeyNotFoundException

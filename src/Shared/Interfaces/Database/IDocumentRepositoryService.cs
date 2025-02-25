@@ -23,6 +23,15 @@ namespace Shared.Interfaces.Database
         Task<DocumentMetadata> GetDocumentAsync(string documentId);
 
         /// <summary>
+        /// Retrieves a list of all document metadata from the database.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains a list of <see cref="DocumentMetadata"/>.
+        /// </returns>
+        Task<List<DocumentMetadata>> ListDocumentsAsync();
+
+        /// <summary>
         /// Asynchronously updates specific fields of an existing document in the database.
         /// </summary>
         /// <param name="documentId">The unique identifier of the document to be updated.</param>

@@ -20,6 +20,7 @@ namespace Shared.Events
         Chunked = 2,
         Embedded = 3,
         Indexed = 4,
+        Deleted = 5,
         Failed = -1
     }
 }

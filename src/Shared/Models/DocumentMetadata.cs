@@ -68,7 +68,7 @@ namespace Shared.Models
         /// Gets or sets the status code representing the document's current state.
         /// </summary>
         /// <remarks>
-        /// 0: Uploaded, 1: Parsed, 2: Chunked, 3: Embedded, 4: Indexed, -1: Failed
+        /// 0: Uploaded, 1: Parsed, 2: Chunked, 3: Embedded, 4: Indexed, 5: Deleted, -1: Failed
         /// </remarks>
         [Column("status")]
         public int Status { get; set; } = 0;

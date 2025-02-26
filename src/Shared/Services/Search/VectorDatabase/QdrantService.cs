@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
+using static Qdrant.Client.Grpc.Conditions;
 
 using Shared.Interfaces.Search;
 using Shared.Models;
@@ -77,6 +78,16 @@ namespace Shared.Services.Search.VectorDatabase
 
             // Upsert the points into the specified collection in Qdrant
             await _client.UpsertAsync(collectionName, points);
+        }
+
+        /// <inheritdoc/>
+        public async Task DeletePointsByDocumentIdAsync(string collectionName, string documentId)
+        {
+            // Delete points matching the filter
+            await _client.DeleteAsync(
+                collectionName: collectionName,
+                filter: MatchKeyword("document_id", documentId)
+            );
         }
     }
 }

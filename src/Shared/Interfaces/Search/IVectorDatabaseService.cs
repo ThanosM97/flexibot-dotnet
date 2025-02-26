@@ -23,5 +23,13 @@ namespace Shared.Interfaces.Search
         /// <param name="chunks">A collection of <see cref="DocumentChunk"/> objects representing the data to be upserted.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task UpsertVectorsAsync(string collectionName, string fileName, IEnumerable<DocumentChunk> chunks);
+
+        /// <summary>
+        /// Deletes points associated with the specified document ID.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection from which to delete points.</param>
+        /// <param name="documentId">The id of the document for which to delete points.</param>
+        /// <returns></returns>
+        Task DeletePointsByDocumentIdAsync(string collectionName, string documentId);
     }
 }

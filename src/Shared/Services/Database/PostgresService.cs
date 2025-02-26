@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
+using Shared.Events;
 using Shared.Interfaces.Database;
 using Shared.Models;
 
@@ -65,6 +66,12 @@ namespace Shared.Services.Database
             // Find the document by its ID. If not found, throw a KeyNotFoundException
             var document = await _context.Documents.FindAsync(documentId) ?? throw new KeyNotFoundException(
                 $"Document with ID {documentId} not found.");
+
+            // Check if the document has been deleted or failed
+            if (document.Status == (int)DocumentStatus.Deleted || document.Status == (int)DocumentStatus.Failed)
+            {
+                throw new KeyNotFoundException($"Document with ID {documentId} not found.");
+            }
 
             // Iterate over each key-value pair in the updates dictionary
             foreach (var (key, value) in updates)

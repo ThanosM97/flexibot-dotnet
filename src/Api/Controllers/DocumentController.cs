@@ -77,18 +77,25 @@ public class DocumentsController(
     [HttpGet("status/{jobId}")]
     public async Task<IActionResult> GetUploadStatus(string jobId)
     {
-        // Retrieve the document from the database using the job ID
-        var document = await _documentRepository.GetDocumentAsync(jobId);
+        DocumentMetadata document;
+        // Try to retrieve the document from the database using the document ID
+        try
+        {
+            document = await _documentRepository.GetDocumentAsync(jobId);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { Message = "Document not found." });
+        }
 
-        // Check if the document exists and return the appropriate status
-        if (document == null)
-            return NotFound();
-
-        if (document.Status == 2)
+        if (document.Status == (int)DocumentStatus.Indexed)
             return Ok(new { Status = "Completed" });
 
-        if (document.Status == -1)
+        if (document.Status == (int)DocumentStatus.Failed)
             return BadRequest(new { Status = "Failed" });
+
+        if (document.Status == (int)DocumentStatus.Deleted)
+            return BadRequest(new { Status = "Deleted" });
 
         return Accepted(new { Status = "Processing" });
     }
@@ -128,12 +135,16 @@ public class DocumentsController(
         [HttpGet("download/{documentId}")]
         public async Task<IActionResult> DownloadDocument(string documentId)
         {
-            // Retrieve the document from the database using the document ID
-            var document = await _documentRepository.GetDocumentAsync(documentId);
-
-            // Check if the document exists
-            if (document == null)
+            DocumentMetadata document;
+            // Try to retrieve the document from the database using the document ID
+            try
+            {
+                document = await _documentRepository.GetDocumentAsync(documentId);
+            }
+            catch (KeyNotFoundException)
+            {
                 return NotFound(new { Message = "Document not found." });
+            }
 
             // Download the file from storage
             var fileStream = await _minioStorageService.DownloadFileAsync(document.ObjectStorageKey);
@@ -143,29 +154,25 @@ public class DocumentsController(
         }
 
         /// <summary>
-        /// Deletes a document by its document ID.
+        /// Deletes a document from the knowledge base by its document ID.
         /// </summary>
         /// <param name="documentId">The ID of the document to delete.</param>
         /// <returns>An IActionResult indicating the result of the operation.</returns>
         [HttpDelete("delete/{documentId}")]
         public async Task<IActionResult> DeleteDocument(string documentId)
         {
-            // Retrieve the document from the database using the document ID
-            var document = await _documentRepository.GetDocumentAsync(documentId);
-
-            // Check if the document exists
-            if (
-                document == null ||
-                document.Status == (int)DocumentStatus.Deleted ||
-                document.Status == (int)DocumentStatus.Failed
-            )
-                return NotFound(new { Message = "Document not found." });
-
-            // Update the document status to Deleted
-            await _documentRepository.UpdateDocumentAsync(documentId, new Dictionary<string, object>
+            try
             {
-                { "Status", DocumentStatus.Deleted }
-            });
+                // Update the document status to Deleted
+                await _documentRepository.UpdateDocumentAsync(documentId, new Dictionary<string, object>
+                {
+                    { "Status", DocumentStatus.Deleted }
+                });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { Message = "Document not found." });
+            }
 
             // Publish a document deleted event
             await _publisher.PublishAsync(

@@ -5,6 +5,7 @@ using System.Text.Json;
 using Shared.Events;
 using Shared.Models;
 using Shared.Services;
+using System.Runtime.CompilerServices;
 
 
 namespace IndexerWorker.Services
@@ -43,6 +44,7 @@ namespace IndexerWorker.Services
                     List<DocumentChunk> chunks = message.Chunks;
 
                     // Index chunks
+                    await _indexer.CreateCollectionIfNotExistsAsync();
                     await _indexer.IndexChunksAsync(message.FileName, chunks);
 
                     // Publish DocumentIndexedEvent

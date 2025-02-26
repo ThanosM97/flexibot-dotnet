@@ -41,9 +41,13 @@ namespace Shared.Services.Search.VectorDatabase
         /// <inheritdoc/>
         public async Task CreateCollectionIfNotExistsAsync(string collectionName, int vectorSize)
         {
+            // List all existing collections
             var collections = await _client.ListCollectionsAsync();
+
+            // Check if the collection already exists
             if (collections.Any(c => c == collectionName)) return;
 
+            // Create a new collection with the specified name and vector size
             await _client.CreateCollectionAsync(
                 collectionName,
                 new VectorParams
@@ -54,8 +58,10 @@ namespace Shared.Services.Search.VectorDatabase
         }
 
         /// <inheritdoc/>
-        public async Task UpsertVectorsAsync(string collectionName, string fileName, IEnumerable<DocumentChunk> chunks)
+        public async Task UpsertVectorsAsync(
+            string collectionName, string fileName, IEnumerable<DocumentChunk> chunks)
         {
+            // Convert DocumentChunk objects to PointStruct objects for upsert operation
             var points = chunks.Select(chunk => new PointStruct
             {
                 Id = new Guid(chunk.Id),
@@ -69,6 +75,7 @@ namespace Shared.Services.Search.VectorDatabase
                 }
             }).ToList();
 
+            // Upsert the points into the specified collection in Qdrant
             await _client.UpsertAsync(collectionName, points);
         }
     }

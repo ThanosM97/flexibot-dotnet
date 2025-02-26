@@ -11,16 +11,30 @@ namespace Shared.Factories.Search
     /// </summary>
     public static class VectorDatabaseFactory
     {
-///     <summary>
+        /// <summary>
         /// Gets an instance of a vector database service based on the specified provider name.
         /// </summary>
-        /// <param name="provider">The name of the vector database provider.</param>
         /// <param name="config">The configuration object used to initialize the service.</param>
         /// <returns>An instance of <see cref="IVectorDatabaseService"/> corresponding to the provider.</returns>
         /// <exception cref="NotSupportedException">Thrown when the specified provider is not supported.</exception>
-        public static IVectorDatabaseService GetVectorSearchService(string provider, IConfiguration config)
+        public static IVectorDatabaseService GetVectorDatabaseService(IConfiguration config)
         {
-            return provider.ToLower() switch
+            var searchConfig = config.GetSection("SEARCH");
+            // Validate search configuration
+            if (
+                string.IsNullOrWhiteSpace(searchConfig["PROVIDER"]) ||
+                string.IsNullOrWhiteSpace(searchConfig["DOCUMENT_COLLECTION"]) ||
+                string.IsNullOrWhiteSpace(searchConfig["VECTOR_SIZE"]) ||
+                !int.TryParse(searchConfig["VECTOR_SIZE"], out int _)
+            )
+            {
+                throw new Exception("Invalid search service configuration.");
+            }
+
+            // Get provider name from configuration
+            string? provider = searchConfig["PROVIDER"];
+
+            return provider?.ToLower() switch
             {
                 "qdrant" => new QdrantService(config),
                 _ => throw new NotSupportedException($"Unsupported vector database provider: {provider}")

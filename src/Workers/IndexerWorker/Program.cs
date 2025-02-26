@@ -1,6 +1,9 @@
+using RabbitMQ.Client;
+
 using IndexerWorker;
 using IndexerWorker.Services;
-using RabbitMQ.Client;
+using Shared.Factories.Search;
+using Shared.Interfaces.Search;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -15,6 +18,11 @@ builder.Services.AddSingleton(connection.Result);
 // Add services
 builder.Services.AddSingleton<DocumentIndexer>();
 builder.Services.AddSingleton<RabbitMQConsumer>();
+builder.Services.AddSingleton<IVectorDatabaseService>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    return VectorDatabaseFactory.GetVectorDatabaseService(config);
+});
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();

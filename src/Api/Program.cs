@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 
+using Api.Hubs;
 using Shared.Interfaces.Database;
 using Shared.Interfaces.Storage;
 using Shared.Services.Database;
@@ -33,6 +34,7 @@ builder.Services.AddSingleton(connection.Result);
 builder.Services.AddSingleton<IStorageService, MinioService>();
 builder.Services.AddSingleton<RabbitMQPublisher>();
 builder.Services.AddScoped<IDocumentRepository, PostgresRepository>();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -41,5 +43,8 @@ var publisher = app.Services.GetRequiredService<RabbitMQPublisher>();
 
 // Map controllers to routes
 app.MapControllers();
+
+// Map SignalR hub
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();

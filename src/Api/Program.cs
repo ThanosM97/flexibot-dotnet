@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 
 using Api.Hubs;
+using Api.Services;
 using Shared.Interfaces.Database;
 using Shared.Interfaces.Storage;
 using Shared.Services.Database;
@@ -33,9 +34,16 @@ builder.Services.AddSingleton(connection.Result);
 // Add services
 builder.Services.AddSingleton<IStorageService, MinioService>();
 builder.Services.AddSingleton<RabbitMQPublisher>();
+builder.Services.AddSingleton<ChatResponseStreamConsumer>();
 builder.Services.AddScoped<IDocumentRepository, PostgresRepository>();
+
+// Add SignalR services
 builder.Services.AddSignalR();
 
+// Add background service for consuming chat response stream
+builder.Services.AddHostedService<ChatResponseStreamBackgroundService>();
+
+// Build the app
 var app = builder.Build();
 
 // Ensure RabbitMQPublisher is initialized at startup

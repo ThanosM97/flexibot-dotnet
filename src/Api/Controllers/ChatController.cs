@@ -32,6 +32,11 @@ public class ChatController(RabbitMQPublisher publisher) : ControllerBase
         var jobId = Guid.NewGuid().ToString();
 
         // Publish a chat prompt event
+        // IMPORTANT ISSUE: There is a race-condition introduced here. The response worker might start sending
+        // chunks of the response before the client has subscribed to the job group.
+        // POTENTIAL SOLUTION: Introduce a cache to store the jobs and publish the chat prompted event
+        // after the client has subscribed to the job group in the hub (OnConnectedAsync).
+        // TODO: Fix the race condition
         await _publisher.PublishAsync(
             new ChatPromptedEvent(jobId, request.Prompt, DateTime.UtcNow), "chat_prompted");
 

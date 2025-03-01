@@ -47,11 +47,15 @@ namespace Api.Services
                             .SendAsync("ReceiveToken", message.Chunk, message.Done);
                         _logger.LogInformation($"Sent token chunk to {message.JobId}");
                     }
+
+                    // Acknowledge the message
+                    await Channel.BasicAckAsync(ea.DeliveryTag, false);
                 }
                 catch (Exception ex)
                 {
                     // Log or handle the exception as needed.
                     _logger.LogError($"Error processing message: {ex.Message}");
+                    await Channel.BasicNackAsync(ea.DeliveryTag, false, false);
                 }
             };
 

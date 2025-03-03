@@ -26,6 +26,7 @@ services:
       - EMBEDDING_PROVIDER=Ollama
       - OLLAMA__ENDPOINT=http://ollama:11434
       - OLLAMA__EMBEDDING_MODEL=all-minilm
+      - OLLAMA__LLM_MODEL=llama3.2:1b
     ports:
       - "5000:5000"
     volumes:

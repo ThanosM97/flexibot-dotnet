@@ -1,12 +1,12 @@
 {
-    "name": "FlexBOT (.NET)",
+    "name": "FlexiBOT (.NET)",
     "dockerComposeFile": "docker-compose.yml",
     "service": "app",
     "workspaceFolder": "/workspaces/",
     "features": {
         "ghcr.io/devcontainers/features/docker-in-docker:2": {}
     },
-    "forwardPorts": [5672, 5432, 6333, 11434],
+    "forwardPorts": [5229, 5672, 5432, 6333, 11434],
     "customizations": {
         "vscode": {
             "extensions": [

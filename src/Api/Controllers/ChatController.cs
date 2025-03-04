@@ -38,7 +38,7 @@ public class ChatController(RabbitMQPublisher publisher) : ControllerBase
         // after the client has subscribed to the job group in the hub (OnConnectedAsync).
         // TODO: Fix the race condition
         await _publisher.PublishAsync(
-            new ChatPromptedEvent(jobId, request.Prompt, DateTime.UtcNow), "chat_prompted");
+            new ChatPromptedEvent(jobId, request.Prompt, request.History, DateTime.UtcNow), "chat_prompted");
 
         // Return the job ID
         return Accepted(new { jobId });

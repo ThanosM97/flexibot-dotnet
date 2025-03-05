@@ -89,5 +89,37 @@ namespace Shared.Services.Search.VectorDatabase
                 filter: MatchKeyword("document_id", documentId)
             );
         }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<SearchResult>> SearchAsync(
+            string collectionName, float[] queryVector, int topK)
+        {
+            // Perform a search in the specified collection using the query vector
+            var searchResults = await _client.SearchAsync(
+                collectionName,
+                queryVector,
+                limit: (ulong)topK
+            );
+
+            // Convert the search results to a list of SearchResult objects
+            return searchResults.Select(ParseResult);
+        }
+
+        /// <summary>
+        /// Parses a <see cref="ScoredPoint"/> object into a <see cref="SearchResult"/> object.
+        /// </summary>
+        /// <param name="point">The <see cref="ScoredPoint"/> object to be parsed.</param>
+        /// <returns>A <see cref="SearchResult"/> object containing the parsed data from the <see cref="ScoredPoint"/>.</returns>
+        private static SearchResult ParseResult(ScoredPoint point)
+        {
+            return new SearchResult
+            {
+                ChunkId=point.Payload["chunk_id"].StringValue,
+                DocumentId=point.Payload["document_id"].StringValue,
+                Content=point.Payload["content"].StringValue,
+                FileName=point.Payload["file_name"].StringValue,
+                ConfidenceScore=point.Score
+            };
+        }
     }
 }

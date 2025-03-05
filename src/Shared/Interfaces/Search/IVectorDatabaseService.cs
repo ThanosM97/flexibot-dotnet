@@ -31,5 +31,15 @@ namespace Shared.Interfaces.Search
         /// <param name="documentId">The id of the document for which to delete points.</param>
         /// <returns></returns>
         Task DeletePointsByDocumentIdAsync(string collectionName, string documentId);
+
+        /// <summary>
+        /// Searches for the nearest vectors to the specified query vector within the collection.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection to search.</param>
+        /// <param name="queryVector">The vector to use as the query for the search.</param>
+        /// <param name="topK">The number of top results to return.</param>
+        /// <returns>A task representing the asynchronous operation, with a result of an enumerable
+        /// collection of <see cref="SearchResult"/> objects representing the nearest vectors found.</returns>
+        Task<IEnumerable<SearchResult>> SearchAsync(string collectionName, float[] queryVector, int topK);
     }
 }

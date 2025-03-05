@@ -27,6 +27,9 @@ services:
       - OLLAMA__ENDPOINT=http://ollama:11434
       - OLLAMA__EMBEDDING_MODEL=all-minilm
       - OLLAMA__LLM_MODEL=llama3.2:1b
+      - RAG__DOCUMENT_COLLECTION=Documents
+      - RAG__TOP_K=5
+      - RAG__CONFIDENCE_THRESHOLD=0.7
     ports:
       - "5000:5000"
     volumes:

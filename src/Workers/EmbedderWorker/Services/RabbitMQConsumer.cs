@@ -39,7 +39,7 @@ namespace EmbedderWorker.Services
                     // Generate embeddings
                     await _embedder.EmbedChunksAsync(message.Chunks);
 
-                    // Publish DocumentChunkedEvent
+                    // Create DocumentEmbeddedEvent
                     var embeddedEvent = new DocumentEmbeddedEvent(
                         DocumentId: message.DocumentId,
                         ObjectStorageKey: message.ObjectStorageKey,

@@ -2,31 +2,17 @@ using Shared.Factories.AI.Language;
 using Shared.Interfaces.AI.Language;
 using Shared.Models;
 
+
 namespace EmbedderWorker.Services
 {
     /// <summary>
     /// Service responsible for embedding documents using a specified embedding provider.
     /// </summary>
-    public class DocumentEmbedder
+    /// <param name="config">The configuration object used to retrieve settings.</param>
+    /// <exception cref="Exception">Thrown when the embedding provider environment variable is not set.</exception>
+    public class DocumentEmbedder(IConfiguration config)
     {
-        private IEmbeddingService _client;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DocumentEmbedder"/> class.
-        /// </summary>
-        /// <param name="config">The configuration object used to retrieve settings.</param>
-        /// <exception cref="Exception">Thrown when the embedding provider environment variable is not set.</exception>
-        public DocumentEmbedder(IConfiguration config)
-        {
-            string? _provider = config["EMBEDDING_PROVIDER"];
-            if (string.IsNullOrWhiteSpace(_provider))
-            {
-                throw new Exception("Embedding provider env variable has not been set.");
-            }
-
-            _client = EmbeddingFactory.GetEmbeddingService(_provider, config);
-
-        }
+        private readonly IEmbeddingService _client = EmbeddingFactory.GetEmbeddingService(config);
 
         /// <summary>
         /// Asynchronously generates embedding vectors for a list of document chunks.

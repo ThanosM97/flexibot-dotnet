@@ -15,11 +15,13 @@ namespace Shared.Factories.AI.Language
         /// <param name="provider">The type of embedding service to create. Currently supports "Ollama".</param>
         /// <param name="config">An instance of IConfiguration.</param>
         /// <returns>An instance of IEmbeddingService corresponding to the specified provider.</returns>
-        /// <exception cref="NotSupportedException">
-        /// Thrown when an unsupported embedding provider is specified.
-        /// </exception>
-        public static IEmbeddingService GetEmbeddingService(string provider, IConfiguration config)
+        /// <exception cref="NotSupportedException">Thrown when an unsupported embedding provider is specified.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the EMBEDDING_PROVIDER configuration is not set.</exception>
+        public static IEmbeddingService GetEmbeddingService(IConfiguration config)
         {
+            // Get provider
+            string provider = config["EMBEDDING_PROVIDER"] ?? throw new InvalidOperationException("EMBEDDING_PROVIDER has not been set.");
+
             return provider.ToLower() switch
             {
                 "ollama" => new OllamaEmbeddingService(config),

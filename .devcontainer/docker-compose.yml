@@ -24,12 +24,15 @@ services:
       - MINIO__ACCESS_KEY=minioadmin
       - MINIO__SECRET_KEY=minioadmin
       - EMBEDDING_PROVIDER=Ollama
+      - CHAT_PROVIDER=Ollama
       - OLLAMA__ENDPOINT=http://ollama:11434
       - OLLAMA__EMBEDDING_MODEL=all-minilm
       - OLLAMA__LLM_MODEL=llama3.2:1b
+      - RAG__METHOD=simple
       - RAG__DOCUMENT_COLLECTION=Documents
       - RAG__TOP_K=5
       - RAG__CONFIDENCE_THRESHOLD=0.7
+      - RAG__DEFAULT_ANSWER=I don't know the answer to this question.
     ports:
       - "5000:5000"
     volumes:

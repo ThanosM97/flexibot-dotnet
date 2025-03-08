@@ -5,17 +5,22 @@ using System.Text.Json;
 using Shared.Events;
 using Shared.Services;
 
+
 namespace ResponseWorker.Services
 {
     /// <summary>
     /// RabbitMQ consumer for handling chat prompted events.
     /// </summary>
     /// <param name="connection">The RabbitMQ connection.</param>
+    /// <param name="chatBot">The ChatBot instance.</param>
     /// <param name="logger">The logger instance.</param>
     public class RabbitMQConsumer(
         IConnection connection,
-        ILogger<RabbitMQConsumer> logger) : RabbitMQConsumerBase<ChatPromptedEvent>(connection, "chat_prompted", "chat")
+        ChatBot chatBot,
+        ILogger<RabbitMQConsumer> logger
+    ) : RabbitMQConsumerBase<ChatPromptedEvent>(connection, "chat_prompted", "chat")
     {
+        private readonly ChatBot _chatBot = chatBot;
         private readonly ILogger<RabbitMQConsumer> _logger = logger;
 
         /// <summary>
@@ -34,23 +39,32 @@ namespace ResponseWorker.Services
 
                 try
                 {
+                    // Log the chat interaction
                     _logger.LogInformation($"Received chat: {message.JobId}");
                     _logger.LogInformation($"{message.Prompt}");
 
-                    // TODO: Implement the chat response generation logic
-                    // foreach (var chunk in chunks)
-                    // {
-                    //     var body = JsonSerializer.SerializeToUtf8Bytes(chunk);
-                    //     await Channel.BasicPublishAsync(
-                    //         exchange: "chat",
-                    //         routingKey: "chat_response_streamed",
-                    //         body: body
-                    //     );
-                    // }
+                    await foreach(var (chunk, done, confidence) in _chatBot.CompleteChunkAsync(
+                        message.History, message.Prompt, stream: true))
+                    {
+                        // Create ChatResponseStreamedEvent
+                        ChatResponseStreamedEvent streamChunkEvent = new(
+                            JobId: message.JobId,
+                            Chunk: chunk,
+                            Done: done,
+                            ChunkTimestamp: DateTime.UtcNow
+                        );
 
+                        // Publish the chat response streamed event
+                        await Channel.BasicPublishAsync(
+                            exchange: "chat",
+                            routingKey: "chat_response_streamed",
+                            body: JsonSerializer.SerializeToUtf8Bytes(streamChunkEvent)
+                        );
+                    }
+
+                    // Acknowledge the message to remove it from the queue
                     await Channel.BasicAckAsync(ea.DeliveryTag, false);
                     _logger.LogInformation($"Streamed response for chat: {message.JobId}");
-
                 }
                 catch (Exception ex)
                 {

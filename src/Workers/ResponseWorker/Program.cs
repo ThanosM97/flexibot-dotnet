@@ -1,7 +1,7 @@
 using RabbitMQ.Client;
 
-using ResponseWorker.Services;
 using ResponseWorker;
+using ResponseWorker.Services;
 
 
 // Create the host builder
@@ -16,6 +16,7 @@ var connection = factory.CreateConnectionAsync();
 builder.Services.AddSingleton(connection.Result);
 
 // Add services
+builder.Services.AddSingleton<ChatBot>();
 builder.Services.AddSingleton<RabbitMQConsumer>();
 builder.Services.AddHostedService<Worker>();
 

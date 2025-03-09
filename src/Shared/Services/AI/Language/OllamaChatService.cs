@@ -36,30 +36,34 @@ namespace Shared.Services.AI.Language
             PullModel(ollamaConfig["ENDPOINT"], ollamaConfig["LLM_MODEL"]);
         }
 
-
         /// <inheritdoc/>
-        public async IAsyncEnumerable<(string, bool)> CompleteChatAsync(
-            IEnumerable<ChatCompletionMessage> messages, bool stream = true)
+        public async IAsyncEnumerable<(string, bool)> CompleteChatStreamAsync(
+            IEnumerable<ChatCompletionMessage> messages)
         {
             // Build the prompt from the provided messages
             string prompt = BuildPrompt(messages);
 
-            // Check if the response should be streamed
-            if (stream)
+            // Stream the response
+            await foreach (var token in _client.GenerateAsync(prompt))
             {
-                // Stream the response
-                await foreach (var token in _client.GenerateAsync(prompt))
-                {
-                    // Yield the response token
-                    yield return (token.Response, token.Done);
-                }
+                // Yield the response token
+                yield return (token.Response, token.Done);
             }
-            else
-            {
-                // Complete the response
-                var response = await _client.CompleteAsync(prompt);
-                yield return (response.Message.ToString(), true);
-            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<string> CompleteChatAsync(
+            IEnumerable<ChatCompletionMessage> messages)
+        {
+            // Build the prompt from the provided messages
+            string prompt = BuildPrompt(messages);
+
+            // Await the asynchronous operation
+            var response = await _client.CompleteAsync(prompt);
+
+            // Return the result
+            return response.ToString();
+
         }
 
         /// <summary>

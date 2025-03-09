@@ -12,9 +12,15 @@ namespace Shared.Interfaces.AI.Language
         /// Asynchronously gets a chat completion response based on the provided messages.
         /// </summary>
         /// <param name="messages">A collection of chat completion messages to process.</param>
-        /// <param name="stream">A boolean value indicating whether to stream the response.</param>
         /// <returns>An asynchronous stream of tuples, where each tuple contains a chat completion response
         /// and a boolean indicating if it is the final response.</returns>
-        IAsyncEnumerable<(string, bool)> CompleteChatAsync(IEnumerable<ChatCompletionMessage> messages, bool stream = true);
+        IAsyncEnumerable<(string, bool)> CompleteChatStreamAsync(IEnumerable<ChatCompletionMessage> messages);
+
+        /// <summary>
+        /// Asynchronously gets a chat completion response based on the provided messages.
+        /// </summary>
+        /// <param name="messages">A collection of chat completion messages to process.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the chat completion response as a string.</returns>
+        Task<string> CompleteChatAsync(IEnumerable<ChatCompletionMessage> messages);
     }
 }

@@ -100,85 +100,85 @@ public class DocumentsController(
         return Accepted(new { Status = "Processing" });
     }
 
-        /// <summary>
-        /// Retrieves a list of all documents' metadata.
-        /// </summary>
-        /// <returns>A list of documents' metadata.</returns>
-        [HttpGet("list")]
-        public async Task<IActionResult> GetDocumentsList()
+    /// <summary>
+    /// Retrieves a list of all documents' metadata.
+    /// </summary>
+    /// <returns>A list of documents' metadata.</returns>
+    [HttpGet("list")]
+    public async Task<IActionResult> GetDocumentsList()
+    {
+        // Retrieve the list of documents from the repository
+        var documents = await _documentRepository.ListDocumentsAsync();
+
+        // Check if there are any documents
+        if (documents == null || documents.Count == 0)
+        return NotFound(new { Message = "No documents found." });
+
+        // Select specific fields to return
+        var documentList = documents.Select(doc => new
         {
-            // Retrieve the list of documents from the repository
-            var documents = await _documentRepository.ListDocumentsAsync();
+            doc.DocumentId,
+            doc.FileName,
+            doc.Extension,
+            doc.Size
+        });
 
-            // Check if there are any documents
-            if (documents == null || documents.Count == 0)
-            return NotFound(new { Message = "No documents found." });
+        // Return the list of documents with specific fields
+        return Ok(documentList);
+    }
 
-            // Select specific fields to return
-            var documentList = documents.Select(doc => new
+    /// <summary>
+    /// Downloads a document by its document ID.
+    /// </summary>
+    /// <param name="documentId">The ID of the document to download.</param>
+    /// <returns></returns>
+    [HttpGet("download/{documentId}")]
+    public async Task<IActionResult> DownloadDocument(string documentId)
+    {
+        DocumentMetadata document;
+        // Try to retrieve the document from the database using the document ID
+        try
+        {
+            document = await _documentRepository.GetDocumentAsync(documentId);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { Message = "Document not found." });
+        }
+
+        // Download the file from storage
+        var fileStream = await _minioStorageService.DownloadFileAsync(document.ObjectStorageKey);
+
+        // Return the file as a stream
+        return File(fileStream, document.ContentType, document.FileName);
+    }
+
+    /// <summary>
+    /// Deletes a document from the knowledge base by its document ID.
+    /// </summary>
+    /// <param name="documentId">The ID of the document to delete.</param>
+    /// <returns>An IActionResult indicating the result of the operation.</returns>
+    [HttpDelete("delete/{documentId}")]
+    public async Task<IActionResult> DeleteDocument(string documentId)
+    {
+        try
+        {
+            // Update the document status to Deleted
+            await _documentRepository.UpdateDocumentAsync(documentId, new Dictionary<string, object>
             {
-                doc.DocumentId,
-                doc.FileName,
-                doc.Extension,
-                doc.Size
+                { "Status", DocumentStatus.Deleted }
             });
-
-            // Return the list of documents with specific fields
-            return Ok(documentList);
         }
-
-        /// <summary>
-        /// Downloads a document by its document ID.
-        /// </summary>
-        /// <param name="documentId">The ID of the document to download.</param>
-        /// <returns></returns>
-        [HttpGet("download/{documentId}")]
-        public async Task<IActionResult> DownloadDocument(string documentId)
+        catch (KeyNotFoundException)
         {
-            DocumentMetadata document;
-            // Try to retrieve the document from the database using the document ID
-            try
-            {
-                document = await _documentRepository.GetDocumentAsync(documentId);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound(new { Message = "Document not found." });
-            }
-
-            // Download the file from storage
-            var fileStream = await _minioStorageService.DownloadFileAsync(document.ObjectStorageKey);
-
-            // Return the file as a stream
-            return File(fileStream, document.ContentType, document.FileName);
+            return NotFound(new { Message = "Document not found." });
         }
 
-        /// <summary>
-        /// Deletes a document from the knowledge base by its document ID.
-        /// </summary>
-        /// <param name="documentId">The ID of the document to delete.</param>
-        /// <returns>An IActionResult indicating the result of the operation.</returns>
-        [HttpDelete("delete/{documentId}")]
-        public async Task<IActionResult> DeleteDocument(string documentId)
-        {
-            try
-            {
-                // Update the document status to Deleted
-                await _documentRepository.UpdateDocumentAsync(documentId, new Dictionary<string, object>
-                {
-                    { "Status", DocumentStatus.Deleted }
-                });
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound(new { Message = "Document not found." });
-            }
+        // Publish a document deleted event
+        await _publisher.PublishAsync(
+            new DocumentDeletedEvent(documentId, DateTime.UtcNow), "document_deleted");
 
-            // Publish a document deleted event
-            await _publisher.PublishAsync(
-                new DocumentDeletedEvent(documentId, DateTime.UtcNow), "document_deleted");
-
-            // Return a Ok response indicating the document was deleted
-            return Ok();
-        }
+        // Return a Ok response indicating the document was deleted
+        return Ok();
+    }
 }

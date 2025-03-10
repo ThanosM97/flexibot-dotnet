@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Minio;
 using Minio.DataModel.Args;
+
 using Shared.Interfaces.Storage;
 
 
@@ -13,7 +14,6 @@ namespace Shared.Services.Storage
     public class MinioService : IStorageService
     {
         private readonly IMinioClient _minioClient;
-        private const string BucketName = "documents";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MinioService"/> class.
@@ -33,7 +33,7 @@ namespace Shared.Services.Storage
 
 
         /// <inheritdoc/>
-        public async Task UploadFileAsync(string objectKey, IFormFile file)
+        public async Task UploadFileAsync(string objectKey, IFormFile file, string bucketName = "documents")
         {
             // Open a read stream
             using var stream = file.OpenReadStream();
@@ -42,7 +42,7 @@ namespace Shared.Services.Storage
             stream.Position = 0;
 
             var putObjectArgs = new PutObjectArgs()
-                .WithBucket(BucketName)
+                .WithBucket(bucketName)
                 .WithObject(objectKey)
                 .WithStreamData(stream)
                 .WithObjectSize(file.Length);
@@ -53,11 +53,11 @@ namespace Shared.Services.Storage
 
 
         /// <inheritdoc/>
-        public async Task<Stream> DownloadFileAsync(string objectName)
+        public async Task<Stream> DownloadFileAsync(string objectName, string bucketName = "documents")
         {
             var memoryStream = new MemoryStream();
             var args = new GetObjectArgs()
-                .WithBucket(BucketName)
+                .WithBucket(bucketName)
                 .WithObject(objectName)
                 .WithCallbackStream(stream => stream.CopyTo(memoryStream));
 
@@ -68,6 +68,17 @@ namespace Shared.Services.Storage
             memoryStream.Position = 0;
 
             return memoryStream;
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteFileAsync(string objectName, string bucketName = "documents")
+        {
+            var args = new RemoveObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(objectName);
+
+            // Download the object into the memory stream
+            await _minioClient.RemoveObjectAsync(args);
         }
     }
 }

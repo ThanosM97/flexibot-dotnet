@@ -12,13 +12,24 @@ namespace Shared.Interfaces.Storage
         /// </summary>
         /// <param name="objectKey">The key under which the file will be stored.</param>
         /// <param name="file">The file to upload.</param>
+        /// <param name="bucketName">The name of the bucket to upload the file to.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task UploadFileAsync(string objectKey, IFormFile file);
+        Task UploadFileAsync(string objectKey, IFormFile file, string bucketName = "documents");
 
         /// <summary>
         /// Downloads a file from the storage.
         /// </summary>
         /// <param name="objectName">The name of the object to download.</param>
-        Task<Stream> DownloadFileAsync(string objectName);
+        /// <param name="bucketName">The name of the bucket to download the file from.</param>
+        /// <returns>A task representing the asynchronous operation, containing the downloaded file as a stream.</returns>
+        Task<Stream> DownloadFileAsync(string objectName, string bucketName = "documents");
+
+        /// <summary>
+        /// Deletes a file from the storage.
+        /// </summary>
+        /// <param name="objectName">The name of the object to delete.</param>
+        /// <param name="bucketName">The name of the bucket to delete the file from.</param>
+        /// <returns></returns>
+        Task DeleteFileAsync(string objectName, string bucketName = "documents");
     }
 }

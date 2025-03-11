@@ -22,51 +22,63 @@ public class DocumentsController(
     private readonly RabbitMQPublisher _publisher = publisher;
 
     /// <summary>
-    /// Uploads a document and stores its metadata, then publishes an event to RabbitMQ.
+    /// Uploads documents and stores their metadata, then publishes events to RabbitMQ.
     /// </summary>
-    /// <param name="file">The file to be uploaded.</param>
-    /// <param name="language">The language of the document, optional.</param>
-    /// <param name="tags">Tags associated with the document, optional.</param>
+    /// <param name="files">The document files to be uploaded.</param>
+    /// <param name="language">The language of the documents, optional.</param>
+    /// <param name="tags">Tags associated with the documents, optional.</param>
     /// <returns>An IActionResult indicating the result of the operation.</returns>
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadDocument(
-        IFormFile file,
+    public async Task<IActionResult> UploadDocuments(
+        List<IFormFile> files,
         [FromForm] string language = "unknown",
         [FromForm] string tags = "")
     {
-        if (file == null || file.Length == 0)
-            return BadRequest("Invalid file.");
+        if (files == null || files.Count == 0)
+            return BadRequest("No files provided.");
 
-        // Create document metadata.
-        var documentMetadata = new DocumentMetadata
+        // Initialize list for job ids
+        List<string> jobIds = [];
+
+        foreach (var file in files)
         {
-            ObjectStorageKey = $"{Guid.NewGuid()}/{file.FileName}",
-            FileName = file.FileName,
-            ContentType = file.ContentType,
-            Extension = Path.GetExtension(file.FileName),
-            Size = file.Length / 1024.0,  // Size in KB
-            UploadedAt = DateTime.UtcNow,
-            Language = language?.Trim(),
-            Tags = tags?.Trim()
-        };
+            if (file == null || file.Length == 0)
+                return BadRequest("Invalid file.");
 
-        // Upload file to storage and insert metadata into the database
-        await _minioStorageService.UploadFileAsync(documentMetadata.ObjectStorageKey, file);
-        await _documentRepository.InsertDocumentAsync(documentMetadata);
+            // Create document metadata.
+            var documentMetadata = new DocumentMetadata
+            {
+                ObjectStorageKey = $"{Guid.NewGuid()}/{file.FileName}",
+                FileName = file.FileName,
+                ContentType = file.ContentType,
+                Extension = Path.GetExtension(file.FileName),
+                Size = file.Length / 1024.0,  // Size in KB
+                UploadedAt = DateTime.UtcNow,
+                Language = language?.Trim(),
+                Tags = tags?.Trim()
+            };
 
-        // Create a document uploaded event
-        DocumentUploadedEvent documentUploadedEvent = new(
-            DocumentId: documentMetadata.DocumentId,
-            ObjectStorageKey: documentMetadata.ObjectStorageKey,
-            FileName: documentMetadata.FileName,
-            UploadedAt: documentMetadata.UploadedAt
-        );
+            // Upload file to storage and insert metadata into the database
+            await _minioStorageService.UploadFileAsync(documentMetadata.ObjectStorageKey, file);
+            await _documentRepository.InsertDocumentAsync(documentMetadata);
 
-        // Publish the document uploaded event
-        await _publisher.PublishAsync(documentUploadedEvent, "document_uploaded");
+            // Create a document uploaded event
+            DocumentUploadedEvent documentUploadedEvent = new(
+                DocumentId: documentMetadata.DocumentId,
+                ObjectStorageKey: documentMetadata.ObjectStorageKey,
+                FileName: documentMetadata.FileName,
+                UploadedAt: documentMetadata.UploadedAt
+            );
+
+            // Publish the document uploaded event
+            await _publisher.PublishAsync(documentUploadedEvent, "document_uploaded");
+
+            // Add the job ID to the list
+            jobIds.Add(documentMetadata.DocumentId);
+        }
 
         // Return an Accepted response with the job ID
-        return Accepted(new { JobId = documentMetadata.DocumentId });
+        return Accepted(new { JobIds = jobIds });
     }
 
     /// <summary>

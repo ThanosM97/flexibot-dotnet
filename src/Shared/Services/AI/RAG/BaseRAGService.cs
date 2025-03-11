@@ -46,7 +46,8 @@ namespace Shared.Services.AI.RAG
 
             // Retrieve RAG configuration settings
             var ragConfig = config.GetSection("RAG");
-            _collectionName = ragConfig["DOCUMENT_COLLECTION"] ?? throw new InvalidOperationException("RAG__DOCUMENT_COLLECTION is not set.");
+            _collectionName = config.GetSection("SEARCH")["DOCUMENT_COLLECTION"] ?? throw new InvalidOperationException(
+                "SEARCH__DOCUMENT_COLLECTION is not set.");
             _topK = int.Parse(ragConfig["TOP_K"] ?? "5");
             _confidenceThreshold = float.Parse(ragConfig["CONFIDENCE_THRESHOLD"] ?? "0.7");
             _defaultAnswer = ragConfig["DEFAULT_ANSWER"] ?? "I don't know the answer to this question";

@@ -22,6 +22,8 @@ namespace Shared.Interfaces.Storage
         /// <param name="objectName">The name of the object to download.</param>
         /// <param name="bucketName">The name of the bucket to download the file from.</param>
         /// <returns>A task representing the asynchronous operation, containing the downloaded file as a stream.</returns>
+        /// <exception cref="FileNotFoundException">Thrown when the file is not found.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the file cannot be downloaded.</exception>
         Task<Stream> DownloadFileAsync(string objectName, string bucketName = "documents");
 
         /// <summary>
@@ -29,7 +31,10 @@ namespace Shared.Interfaces.Storage
         /// </summary>
         /// <param name="objectName">The name of the object to delete.</param>
         /// <param name="bucketName">The name of the bucket to delete the file from.</param>
-        /// <returns></returns>
-        Task DeleteFileAsync(string objectName, string bucketName = "documents");
+        /// <returns>A task representing the asynchronous operation, containing a boolean indicating
+        /// whether the deletion was successful.</returns>
+        /// <exception cref="FileNotFoundException">Thrown when the file is not found.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the file cannot be deleted.</exception>
+        Task<bool> DeleteFileAsync(string objectName, string bucketName = "documents");
     }
 }

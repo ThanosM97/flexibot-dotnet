@@ -59,15 +59,24 @@ public class QnAController(
     [HttpGet("download")]
     public async Task<IActionResult> DownloadQnA()
     {
-        // Download the file from storage
-        var fileStream = await _minioStorageService.DownloadFileAsync(FileName, _bucketName);
+        try
+        {
+            // Download the file from storage
+            var fileStream = await _minioStorageService.DownloadFileAsync(FileName, _bucketName);
 
-        // If the file does not exist, return a 404 Not Found response
-        if (fileStream == null)
+            // Return the file as a stream
+            return File(fileStream, "text/csv", FileName);
+        }
+        catch (FileNotFoundException)
+        {
+            // If the file does not exist, return a 404 Not Found response
             return NotFound();
-
-        // Return the file as a stream
-        return File(fileStream, "text/csv", FileName);
+        }
+        catch (InvalidOperationException)
+        {
+            // If the file cannot be downloaded, return a 500 Internal Server Error response
+            return BadRequest("The file could not be downloaded.");
+        }
     }
 
     /// <summary>
@@ -77,14 +86,30 @@ public class QnAController(
     [HttpDelete("delete")]
     public async Task<IActionResult> DeleteQnA()
     {
-        // Delete the file from storage
-        await _minioStorageService.DeleteFileAsync(FileName, _bucketName);
+        try
+        {
+            // Delete the file from storage
+            bool deleted = await _minioStorageService.DeleteFileAsync(FileName, _bucketName);
 
-        // Publish a document deleted event
-        await _publisher.PublishAsync(
-            new QnADeletedEvent(FileName, DateTime.UtcNow), "qna_deleted");
+            if (!deleted)
+                return BadRequest("The file could not be deleted.");
 
-        // Return a Ok response indicating the document was deleted
-        return Ok();
+            // Publish a document deleted event
+            await _publisher.PublishAsync(
+                new QnADeletedEvent(FileName, DateTime.UtcNow), "qna_deleted");
+
+            // Return a Ok response indicating the document was deleted
+            return Ok();
+        }
+        catch (FileNotFoundException)
+        {
+            // If the file does not exist, return a 404 Not Found response
+            return NotFound();
+        }
+        catch (InvalidOperationException)
+        {
+            // If the file cannot be deleted, return a 500 Internal Server Error response
+            return BadRequest("The file could not be deleted.");
+        }
     }
 }

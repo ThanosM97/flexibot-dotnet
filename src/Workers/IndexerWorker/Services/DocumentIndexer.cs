@@ -20,7 +20,7 @@ namespace IndexerWorker.Services
         public async Task IndexChunksAsync(string fileName, List<DocumentChunk> chunks)
         {
             // Upsert the vectors into the specified collection
-             await _client.UpsertVectorsAsync(_collectionName, fileName, chunks);
+             await _client.UpsertDocumentVectorsAsync(_collectionName, fileName, chunks);
         }
 
         /// <summary>

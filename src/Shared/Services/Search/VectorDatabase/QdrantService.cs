@@ -59,7 +59,7 @@ namespace Shared.Services.Search.VectorDatabase
         }
 
         /// <inheritdoc/>
-        public async Task UpsertVectorsAsync(
+        public async Task UpsertDocumentVectorsAsync(
             string collectionName, string fileName, IEnumerable<DocumentChunk> chunks)
         {
             // Convert DocumentChunk objects to PointStruct objects for upsert operation
@@ -81,12 +81,43 @@ namespace Shared.Services.Search.VectorDatabase
         }
 
         /// <inheritdoc/>
+        public async Task UpsertQnAVectorsAsync(
+            string collectionName, IEnumerable<QnARecord> records)
+        {
+            // Convert QnARecord objects to PointStruct objects for upsert operation
+            var points = records.Select(chunk => new PointStruct
+            {
+                Id = Guid.NewGuid(),
+                Vectors = chunk.QuestionEmbedding,
+                Payload =
+                {
+                    ["id"] = chunk.Id,
+                    ["question"] = chunk.Question,
+                    ["answer"] = chunk.Answer,
+                }
+            }).ToList();
+
+            // Upsert the points into the specified collection in Qdrant
+            await _client.UpsertAsync(collectionName, points);
+        }
+
+        /// <inheritdoc/>
         public async Task DeletePointsByDocumentIdAsync(string collectionName, string documentId)
         {
             // Delete points matching the filter
             await _client.DeleteAsync(
                 collectionName: collectionName,
                 filter: MatchKeyword("document_id", documentId)
+            );
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteAllPointsAsync(string collectionName)
+        {
+            // Delete all points using an empty filter
+            await _client.DeleteAsync(
+                collectionName: collectionName,
+                filter: new Filter()
             );
         }
 

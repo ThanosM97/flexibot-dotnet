@@ -38,6 +38,7 @@ namespace Shared.Factories.AI.RAG
             return method.ToLower() switch
             {
                 "simple" => new SimpleRAG(searchService, embdService, chatService, config),
+                "hyde" => new HyDERAG(searchService, embdService, chatService, config),
                 _ => throw new NotSupportedException($"Unsupported RAG method: {method}")
             };
         }

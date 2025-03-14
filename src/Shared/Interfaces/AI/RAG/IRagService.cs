@@ -15,6 +15,6 @@ namespace Shared.Interfaces.AI.RAG
         /// /// <param name="stream">A boolean value indicating whether to stream the response.</param>
         /// <returns>An asynchronous stream of tuples, where each tuple contains a chunk of the generated response,
         /// a boolean indicating if it is the final chunk, and the extracted confidence score.</returns>
-        IAsyncEnumerable<(string, bool, float)> GenerateAnswerAsync(List<ChatCompletionMessage> chat, bool stream);
+        IAsyncEnumerable<RAGResult> GenerateAnswerAsync(List<ChatCompletionMessage> chat, bool stream);
     }
 }

@@ -54,7 +54,7 @@ namespace Shared.Services.AI.RAG
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<(string, bool, float)> GenerateAnswerAsync(
+        public virtual async IAsyncEnumerable<RAGResult> GenerateAnswerAsync(
             List<ChatCompletionMessage> chatHistory, bool stream = true)
         {
             // Generate query vector
@@ -72,15 +72,17 @@ namespace Shared.Services.AI.RAG
 
             // Generate answer using the GenerateAnswerWithConfidenceAsync method for confidence parsing
             float confidenceScore = -1;
-            await foreach (var (chunk, isLastChunk, confidence) in GenerateAnswerWithConfidenceAsync(
+            await foreach (ChatCompletionResult chatCompletionResult in GenerateAnswerWithConfidenceAsync(
                 chatMessages, _confidenceThreshold, _defaultAnswer))
             {
-                confidenceScore = confidence;
-                yield return (chunk, isLastChunk, confidence);
+                confidenceScore = chatCompletionResult.Confidence;
+                yield return new RAGResult(
+                    chatCompletionResult.IsFinalChunk, chatCompletionResult.Answer,
+                    chatCompletionResult.Confidence);
             }
 
             // No chunk was returned
-            if (confidenceScore == -1) yield return (_defaultAnswer, true, 0);
+            if (confidenceScore == -1) yield return new RAGResult(true, _defaultAnswer, 0);
         }
 
         /// <summary>
@@ -148,7 +150,7 @@ namespace Shared.Services.AI.RAG
         /// <param name="defaultAnswer">The default answer to return if the confidence score is below the threshold or not found.</param>
         /// <returns>An asynchronous stream of tuples containing generated chunks, a boolean indicating if it's the last chunk, and
         /// confidence score for the response.</returns>
-        protected virtual async IAsyncEnumerable<(string, bool, float)> GenerateAnswerWithConfidenceAsync(
+        protected virtual async IAsyncEnumerable<ChatCompletionResult> GenerateAnswerWithConfidenceAsync(
             List<ChatCompletionMessage> chatMessages, float confidenceThreshold, string defaultAnswer)
         {
             // Flag to check if the confidence score has been parsed
@@ -173,27 +175,27 @@ namespace Shared.Services.AI.RAG
                         // If the confidence score is below the threshold, yield a default response and break the loop
                         if (confidence < confidenceThreshold)
                         {
-                            yield return (defaultAnswer, true, confidenceScore);
+                            yield return new ChatCompletionResult(true, defaultAnswer, confidenceScore);
                             break;
                         }
 
                         // If there's remaining content after parsing, yield it along with the confidence score
                         if (!string.IsNullOrEmpty(remainingContent))
                         {
-                            yield return (remainingContent, isLastChunk, confidenceScore);
+                            yield return new ChatCompletionResult(isLastChunk, remainingContent, confidenceScore);
                         }
                     }
                 }
                 else
                 {
                     // If confidence score has already been parsed, yield the chunk as is
-                    yield return (chunk, isLastChunk, confidenceScore);
+                    yield return new ChatCompletionResult(isLastChunk, chunk, confidenceScore);
                 }
 
                 // If it's the last chunk and confidence score was not parsed, yield a default no response message
                 if (isLastChunk && !confidenceParsed)
                 {
-                    yield return (defaultAnswer, true, 0);
+                    yield return new ChatCompletionResult(true, defaultAnswer, 0);
                 }
             }
         }

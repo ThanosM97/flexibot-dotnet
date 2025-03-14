@@ -3,6 +3,7 @@ using RabbitMQ.Client.Events;
 using System.Text.Json;
 
 using Shared.Events;
+using Shared.Models;
 using Shared.Services;
 
 
@@ -43,14 +44,14 @@ namespace ResponseWorker.Services
                     _logger.LogInformation($"Received chat: {message.JobId}");
                     _logger.LogInformation($"{message.Prompt}");
 
-                    await foreach(var (chunk, done, confidence) in _chatBot.CompleteChunkAsync(
+                    await foreach(ChatBotResult chatBotResult in _chatBot.CompleteChunkAsync(
                         message.History, message.Prompt, stream: true))
                     {
                         // Create ChatResponseStreamedEvent
                         ChatResponseStreamedEvent streamChunkEvent = new(
                             JobId: message.JobId,
-                            Chunk: chunk,
-                            Done: done,
+                            Chunk: chatBotResult.Answer,
+                            Done: chatBotResult.IsFinalChunk,
                             ChunkTimestamp: DateTime.UtcNow
                         );
 

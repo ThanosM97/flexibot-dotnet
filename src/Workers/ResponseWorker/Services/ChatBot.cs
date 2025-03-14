@@ -21,7 +21,7 @@ namespace ResponseWorker.Services
         /// <param name="prompt">The current user prompt to be processed.</param>
         /// <param name="stream">Indicates whether the response should be streamed.</param>
         /// <returns>An asynchronous stream of tuples containing the response chunk, a completion flag, and a confidence score.</returns>
-        public async IAsyncEnumerable<(string, bool, float)> CompleteChunkAsync(
+        public async IAsyncEnumerable<ChatBotResult> CompleteChunkAsync(
             List<ChatCompletionMessage> history, string prompt, bool stream=true)
         {
             // Initialize the chat history with existing messages and add the user's current prompt
@@ -32,9 +32,10 @@ namespace ResponseWorker.Services
             ];
 
             // Yield chunks of the response
-            await foreach(var (chunk, done, confidence) in _client.GenerateAnswerAsync(chat, stream))
+            await foreach(RAGResult ragResult in _client.GenerateAnswerAsync(chat, stream))
             {
-                yield return (chunk, done, confidence);
+                yield return new ChatBotResult(
+                    ragResult.IsFinalChunk, ragResult.Answer, ragResult.Confidence, "RAG");
             }
         }
     }

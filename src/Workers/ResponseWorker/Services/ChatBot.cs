@@ -1,18 +1,28 @@
+using Shared.Factories.AI.Language;
 using Shared.Factories.AI.RAG;
+using Shared.Interfaces.AI.Language;
 using Shared.Interfaces.AI.RAG;
+using Shared.Interfaces.Storage;
 using Shared.Models;
 
 
 namespace ResponseWorker.Services
 {
     /// <summary>
-    /// Represents a chatbot service that utilizes a Retrieval-Augmented Generation (RAG) client
-    /// to process and generate chat responses based on user input and chat history.
+    /// The ChatBot class provides functionality for generating responses to user prompts
+    /// within a chat interface by utilizing QnA and Retrieval-Augmented Generation (RAG) services.
     /// </summary>
-    public class ChatBot(IConfiguration config)
+    /// <remarks>
+    /// This class asynchronously processes user prompts and chat history to produce response
+    /// chunks, leveraging both quick lookups via a QnA service and more comprehensive answer
+    /// generation through a RAG service.
+    /// </remarks>
+    /// <param name="storageService">The service used for handling storage operations.</param>
+    /// <param name="config">The configuration settings for the ChatBot service.</param>
+    public class ChatBot(IStorageService storageService, IConfiguration config)
     {
-        // Create RAG service
-        private readonly IRetrievalAugmentedGeneration _client = RAGFactory.GetRAGService(config);
+        private readonly IQnAService _qnaService = QnAFactory.GetQnAService(storageService, config);
+        private readonly IRetrievalAugmentedGeneration _ragService = RAGFactory.GetRAGService(config);
 
         /// <summary>
         /// Asynchronously processes a chat history and user prompt to generate response chunks.
@@ -24,6 +34,16 @@ namespace ResponseWorker.Services
         public async IAsyncEnumerable<ChatBotResult> CompleteChunkAsync(
             List<ChatCompletionMessage> history, string prompt, bool stream=true)
         {
+            // Try to get a response from QnA
+            QnAResult qnaResult = await _qnaService.GetAnswerAsync(prompt);
+
+            // If a suitable answer was found, yield it as a final chunk
+            if(qnaResult.Found)
+            {
+                yield return new ChatBotResult(true, qnaResult.Answer, qnaResult.Confidence, "QnA");
+                yield break;
+            }
+
             // Initialize the chat history with existing messages and add the user's current prompt
             List<ChatCompletionMessage> chat =
             [
@@ -32,7 +52,7 @@ namespace ResponseWorker.Services
             ];
 
             // Yield chunks of the response
-            await foreach(RAGResult ragResult in _client.GenerateAnswerAsync(chat, stream))
+            await foreach(RAGResult ragResult in _ragService.GenerateAnswerAsync(chat, stream))
             {
                 yield return new ChatBotResult(
                     ragResult.IsFinalChunk, ragResult.Answer, ragResult.Confidence, "RAG");

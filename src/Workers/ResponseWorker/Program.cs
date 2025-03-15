@@ -2,6 +2,8 @@ using RabbitMQ.Client;
 
 using ResponseWorker;
 using ResponseWorker.Services;
+using Shared.Interfaces.Storage;
+using Shared.Services.Storage;
 
 
 // Create the host builder
@@ -17,6 +19,7 @@ builder.Services.AddSingleton(connection.Result);
 
 // Add services
 builder.Services.AddSingleton<ChatBot>();
+builder.Services.AddSingleton<IStorageService, MinioService>();
 builder.Services.AddSingleton<RabbitMQConsumer>();
 builder.Services.AddHostedService<Worker>();
 

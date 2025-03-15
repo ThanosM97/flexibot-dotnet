@@ -126,14 +126,16 @@ public class DocumentsController(
         if (documents == null || documents.Count == 0)
         return NotFound(new { Message = "No documents found." });
 
-        // Select specific fields to return
-        var documentList = documents.Select(doc => new
-        {
-            doc.DocumentId,
-            doc.FileName,
-            doc.Extension,
-            doc.Size
-        });
+        // Select specific fields to return from indexed documents
+        var documentList = documents
+            .Where(doc => doc.Status == (int)DocumentStatus.Indexed)
+            .Select(doc => new
+            {
+                doc.DocumentId,
+                doc.FileName,
+                doc.Extension,
+                doc.Size
+            });
 
         // Return the list of documents with specific fields
         return Ok(documentList);

@@ -8,21 +8,21 @@ namespace Shared.Models
         /// <summary>
         /// Gets or sets the unique identifier for the QnA record.
         /// </summary>
-        public int Id { get; set; }
+        public required int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the question associated with the QnA record.
         /// </summary>
-        public string Question { get; set; }
+        public required string Question { get; set; }
 
         /// <summary>
         /// Gets or sets the embedding vector for the question, used for similarity search.
         /// </summary>
-        public float[] QuestionEmbedding { get; set; }
+        public required float[] QuestionEmbedding { get; set; }
 
         /// <summary>
         /// Gets or sets the answer associated with the question in the QnA record.
         /// </summary>
-        public string Answer { get; set; }
+        public required string Answer { get; set; }
     }
 }

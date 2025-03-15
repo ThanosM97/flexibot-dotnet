@@ -28,6 +28,7 @@ public class SemanticQnAService(
 ) : IQnAService
 {
     private readonly IVectorDatabaseService _vectorDbService = vectorDbService;
+    private readonly ITextNormalizationService _textNormalizationService = new TextNormalizationService();
     private readonly IEmbeddingService _embeddingService = embeddingService;
     private readonly IStorageService _storageService = storageService;
     private readonly int _vectorSize = int.Parse(config.GetSection("SEARCH")["VECTOR_SIZE"] ?? "384");
@@ -46,12 +47,20 @@ public class SemanticQnAService(
         using var csv = new CsvReader(new StreamReader(fileStream), CultureInfo.InvariantCulture);
 
         // Get records from CSV
+        csv.Context.RegisterClassMap<QnARecordMap>();
         List<QnARecord> records = [.. csv.GetRecords<QnARecord>()];
 
         // Generate embeddings for questions in parallel
         var tasks = records.Select(record => Task.Run(async () =>
         {
-            record.QuestionEmbedding = await _embeddingService.GenerateEmbeddingAsync(record.Question);
+            // Normalize question text
+            string normalizedQuestion = _textNormalizationService.Normalize(record.Question);
+
+            // Update record with normalized question
+            record.NormalizedQuestion = normalizedQuestion;
+
+            // Update record with normalized question embedding
+            record.QuestionEmbedding = await _embeddingService.GenerateEmbeddingAsync(normalizedQuestion);
         }));
         await Task.WhenAll(tasks);
 
@@ -78,8 +87,11 @@ public class SemanticQnAService(
     /// <inheritdoc/>
     public async Task<QnAResult> GetAnswerAsync(string question)
     {
-        // Generate embedding for the question
-        var questionEmbedding = await _embeddingService.GenerateEmbeddingAsync(question);
+        // Normalize the question text
+        string normalizedQuestion = _textNormalizationService.Normalize(question);
+
+        // Generate embedding for the normalized question
+        var questionEmbedding = await _embeddingService.GenerateEmbeddingAsync(normalizedQuestion);
 
         // Search for the closest question in the vector database
         IEnumerable<QnASearchResult> results = await _vectorDbService.SearchQnAAsync(_collectionName, questionEmbedding, 1);

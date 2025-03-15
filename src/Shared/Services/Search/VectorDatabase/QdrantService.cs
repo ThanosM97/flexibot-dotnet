@@ -93,6 +93,7 @@ namespace Shared.Services.Search.VectorDatabase
                 {
                     ["id"] = chunk.Id,
                     ["question"] = chunk.Question,
+                    ["normalized_question"] = chunk.NormalizedQuestion,
                     ["answer"] = chunk.Answer,
                 }
             }).ToList();

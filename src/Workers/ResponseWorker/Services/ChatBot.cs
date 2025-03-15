@@ -4,6 +4,7 @@ using Shared.Interfaces.AI.Language;
 using Shared.Interfaces.AI.RAG;
 using Shared.Interfaces.Storage;
 using Shared.Models;
+using Shared.Services.AI.Language;
 
 
 namespace ResponseWorker.Services
@@ -23,6 +24,7 @@ namespace ResponseWorker.Services
     {
         private readonly IQnAService _qnaService = QnAFactory.GetQnAService(storageService, config);
         private readonly IRetrievalAugmentedGeneration _ragService = RAGFactory.GetRAGService(config);
+        private readonly ITextNormalizationService _textNormalizationService = new TextNormalizationService();
 
         /// <summary>
         /// Asynchronously processes a chat history and user prompt to generate response chunks.
@@ -34,8 +36,11 @@ namespace ResponseWorker.Services
         public async IAsyncEnumerable<ChatBotResult> CompleteChunkAsync(
             List<ChatCompletionMessage> history, string prompt, bool stream=true)
         {
+            // Normalize the user prompt for QnA lookup
+            string normalizedPrompt = _textNormalizationService.Normalize(prompt);
+
             // Try to get a response from QnA
-            QnAResult qnaResult = await _qnaService.GetAnswerAsync(prompt);
+            QnAResult qnaResult = await _qnaService.GetAnswerAsync(normalizedPrompt);
 
             // If a suitable answer was found, yield it as a final chunk
             if(qnaResult.Found)

@@ -136,6 +136,21 @@ namespace Shared.Services.Search.VectorDatabase
             return searchResults.Select(ParseResult);
         }
 
+        /// <inheritdoc/>
+        public async Task<IEnumerable<QnASearchResult>> SearchQnAAsync(
+            string collectionName, float[] queryVector, int topK)
+        {
+            // Perform a search in the specified collection using the query vector
+            var searchResults = await _client.SearchAsync(
+                collectionName,
+                queryVector,
+                limit: (ulong)topK
+            );
+
+            // Convert the search results to a list of SearchResult objects
+            return searchResults.Select(ParseQnAResult);
+        }
+
         /// <summary>
         /// Parses a <see cref="ScoredPoint"/> object into a <see cref="SearchResult"/> object.
         /// </summary>
@@ -149,6 +164,22 @@ namespace Shared.Services.Search.VectorDatabase
                 DocumentId=point.Payload["document_id"].StringValue,
                 Content=point.Payload["content"].StringValue,
                 FileName=point.Payload["file_name"].StringValue,
+                ConfidenceScore=point.Score
+            };
+        }
+
+        /// <summary>
+        /// Parses a <see cref="ScoredPoint"/> object into a <see cref="SearchResult"/> object.
+        /// </summary>
+        /// <param name="point">The <see cref="ScoredPoint"/> object to be parsed.</param>
+        /// <returns>A <see cref="QnASearchResult"/> object containing the parsed data from the <see cref="ScoredPoint"/>.</returns>
+        private static QnASearchResult ParseQnAResult(ScoredPoint point)
+        {
+            return new QnASearchResult
+            {
+                Id= (int)point.Payload["id"].IntegerValue,
+                Question=point.Payload["question"].StringValue,
+                Answer=point.Payload["answer"].StringValue,
                 ConfidenceScore=point.Score
             };
         }

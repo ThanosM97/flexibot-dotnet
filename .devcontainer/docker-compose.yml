@@ -35,6 +35,7 @@ services:
       - RAG__TOP_K=5
       - RAG__CONFIDENCE_THRESHOLD=0.7
       - RAG__DEFAULT_ANSWER=I don't know the answer to this question.
+      - QNA__METHOD=semantic
       - QNA__CONFIDENCE_THRESHOLD=0.7
       - QNA__DEFAULT_ANSWER=I don't know the answer to this question.
     ports:

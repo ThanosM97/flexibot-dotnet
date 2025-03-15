@@ -1,12 +1,6 @@
-using CsvHelper;
-using System.Globalization;
-
-using Shared.Interfaces.AI.Language;
-using Shared.Interfaces.Search;
-using Shared.Interfaces.Storage;
-using Shared.Models;
 using Shared.Factories.AI.Language;
-using Shared.Factories.Search;
+using Shared.Interfaces.AI.Language;
+using Shared.Interfaces.Storage;
 
 
 namespace QnAWorker.Services
@@ -20,12 +14,7 @@ namespace QnAWorker.Services
     /// </remarks>
     public class QnAProcessor(IStorageService storageService, IConfiguration config)
     {
-        private readonly IStorageService _storageService = storageService;
-        private readonly IEmbeddingService _embeddingService = EmbeddingFactory.GetEmbeddingService(config);
-        private readonly IVectorDatabaseService _vectorDatabaseService = VectorDatabaseFactory.GetVectorDatabaseService(config);
-        private readonly IConfiguration _config = config;
-        private const string BucketName = "qna";
-        private const string CollectionName = "qna";
+        private readonly IQnAService _qnaService = QnAFactory.GetQnAService(storageService, config);
 
         /// <summary>
         /// Processes the uploaded CSV file by reading QnA records, generating embeddings for each question,
@@ -43,31 +32,8 @@ namespace QnAWorker.Services
         /// </remarks>
         public async Task ProcessUploadAsync(string fileName)
         {
-            // Create collection if it doesn't exist
-            int vectorSize = int.Parse(_config.GetSection("SEARCH")["VECTOR_SIZE"] ?? "384");
-            await _vectorDatabaseService.CreateCollectionIfNotExistsAsync(CollectionName, vectorSize);
-
-            // Get CSV filestream from storage
-            var fileStream = await _storageService.DownloadFileAsync(fileName, BucketName);
-
-            // Read the CSV file stream
-            using var csv = new CsvReader(new StreamReader(fileStream), CultureInfo.InvariantCulture);
-
-            // Get records from CSV
-            List<QnARecord> records = [.. csv.GetRecords<QnARecord>()];
-
-            // Generate embeddings for questions in parallel
-            var tasks = records.Select(record => Task.Run(async () =>
-            {
-                record.QuestionEmbedding = await _embeddingService.GenerateEmbeddingAsync(record.Question);
-            }));
-            await Task.WhenAll(tasks);
-
-            // Clear the vector database
-            await _vectorDatabaseService.DeleteAllPointsAsync(CollectionName);
-
-            // Store new embeddings in the vector database
-            await _vectorDatabaseService.UpsertQnAVectorsAsync(CollectionName, records);
+            // Process the uploaded file
+            await _qnaService.ProcessQnAUploadAsync(fileName);
         }
 
         /// <summary>
@@ -83,11 +49,8 @@ namespace QnAWorker.Services
         /// </remarks>
         public async Task ClearQnAKnowledgeBase(string fileName)
         {
-            // Clear the vector database
-            await _vectorDatabaseService.DeleteAllPointsAsync(CollectionName);
-
-            // Delete the CSV file from storage
-            await _storageService.DeleteFileAsync(fileName, BucketName);
+            // Clear the knowledge base
+            await _qnaService.DeleteQnACacheAsync(fileName);
         }
 
     }

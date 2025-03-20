@@ -1,5 +1,6 @@
 using Shared.Interfaces.Database;
 using Shared.Interfaces.Search;
+using Shared.Models;
 
 
 namespace DeleterWorker.Services
@@ -32,10 +33,10 @@ namespace DeleterWorker.Services
             using var scope = _scopeFactory.CreateScope();
 
             // Get the document repository service from the scope
-            var repo = scope.ServiceProvider.GetRequiredService<IDocumentRepository>();
+            var repo = scope.ServiceProvider.GetRequiredService<IDatabaseService<DocumentMetadata>>();
 
             // Delete the document from the database
-            await repo.DeleteDocumentAsync(documentId);
+            await repo.DeleteAsync(documentId);
         }
 
         /// <summary>

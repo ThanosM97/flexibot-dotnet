@@ -15,10 +15,10 @@ namespace Api.Controllers;
 [ApiController]
 [Route("documents")]
 public class DocumentsController(
-    IStorageService storageService, IDocumentRepository documentRepository, RabbitMQPublisher publisher) : ControllerBase
+    IStorageService storageService, IDatabaseService<DocumentMetadata> documentRepository, RabbitMQPublisher publisher) : ControllerBase
 {
     private readonly IStorageService _minioStorageService = storageService;
-    private readonly IDocumentRepository _documentRepository = documentRepository;
+    private readonly IDatabaseService<DocumentMetadata> _documentRepository = documentRepository;
     private readonly RabbitMQPublisher _publisher = publisher;
 
     /// <summary>
@@ -60,7 +60,7 @@ public class DocumentsController(
 
             // Upload file to storage and insert metadata into the database
             await _minioStorageService.UploadFileAsync(documentMetadata.ObjectStorageKey, file);
-            await _documentRepository.InsertDocumentAsync(documentMetadata);
+            await _documentRepository.InsertAsync(documentMetadata);
 
             // Create a document uploaded event
             DocumentUploadedEvent documentUploadedEvent = new(
@@ -93,7 +93,7 @@ public class DocumentsController(
         // Try to retrieve the document from the database using the document ID
         try
         {
-            document = await _documentRepository.GetDocumentAsync(jobId);
+            document = await _documentRepository.GetObjByIdAsync(jobId);
         }
         catch (KeyNotFoundException)
         {
@@ -120,7 +120,7 @@ public class DocumentsController(
     public async Task<IActionResult> GetDocumentsList()
     {
         // Retrieve the list of documents from the repository
-        var documents = await _documentRepository.ListDocumentsAsync();
+        var documents = await _documentRepository.ListAsync();
 
         // Check if there are any documents
         if (documents == null || documents.Count == 0)
@@ -153,7 +153,7 @@ public class DocumentsController(
         // Try to retrieve the document from the database using the document ID
         try
         {
-            document = await _documentRepository.GetDocumentAsync(documentId);
+            document = await _documentRepository.GetObjByIdAsync(documentId);
         }
         catch (KeyNotFoundException)
         {
@@ -178,7 +178,7 @@ public class DocumentsController(
         try
         {
             // Update the document status to Deleted
-            await _documentRepository.UpdateDocumentAsync(documentId, new Dictionary<string, object>
+            await _documentRepository.UpdateAsync(documentId, new Dictionary<string, object>
             {
                 { "Status", DocumentStatus.Deleted }
             });

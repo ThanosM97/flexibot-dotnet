@@ -5,9 +5,10 @@ using Api.Hubs;
 using Api.Services;
 using Shared.Interfaces.Database;
 using Shared.Interfaces.Storage;
+using Shared.Models;
+using Shared.Services;
 using Shared.Services.Database;
 using Shared.Services.Storage;
-using Shared.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,7 @@ builder.Logging.AddConsole();
 builder.Services.AddControllers();
 
 // Add database context
-builder.Services.AddDbContext<DocumentDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration["ConnectionStrings:Postgres"]));
 
 // Add RabbitMQ connection
@@ -35,7 +36,7 @@ builder.Services.AddSingleton(connection.Result);
 builder.Services.AddSingleton<IStorageService, MinioService>();
 builder.Services.AddSingleton<RabbitMQPublisher>();
 builder.Services.AddSingleton<ChatResponseStreamConsumer>();
-builder.Services.AddScoped<IDocumentRepository, PostgresRepository>();
+builder.Services.AddScoped<IDatabaseService<DocumentMetadata>, PostgresRepository<DocumentMetadata>>();
 
 // Add SignalR services
 builder.Services.AddSignalR();

@@ -6,6 +6,7 @@ using DeleterWorker.Services;
 using Shared.Factories.Search;
 using Shared.Interfaces.Database;
 using Shared.Interfaces.Search;
+using Shared.Models;
 using Shared.Services.Database;
 
 
@@ -20,11 +21,11 @@ var connection = factory.CreateConnectionAsync();
 builder.Services.AddSingleton(connection.Result);
 
 // Add database context
-builder.Services.AddDbContext<DocumentDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration["ConnectionStrings:Postgres"]));
 
 // Add services
-builder.Services.AddScoped<IDocumentRepository, PostgresRepository>();
+builder.Services.AddScoped<IDatabaseService<DocumentMetadata>, PostgresRepository<DocumentMetadata>>();
 builder.Services.AddSingleton<RabbitMQConsumer>();
 builder.Services.AddSingleton<IVectorDatabaseService>(sp =>
 {

@@ -1,56 +1,53 @@
-using Shared.Models;
-
-
 namespace Shared.Interfaces.Database
 {
     /// <summary>
-    /// Represents a repository interface for managing document metadata in a database.
+    /// Represents a service interface for managing a database.
     /// </summary>
-    public interface IDocumentRepository
+    public interface IDatabaseService<TEntity> where TEntity : class
     {
         /// <summary>
-        /// Asynchronously inserts a new document into the database.
+        /// Asynchronously inserts a new entity into the database.
         /// </summary>
-        /// <param name="document">The <see cref="DocumentMetadata"/> of the document to be inserted.</param>
+        /// <param name="entity">The <see cref="TEntity"/> of the entity to be inserted.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task InsertDocumentAsync(DocumentMetadata document);
+        Task InsertAsync(TEntity entity);
 
         /// <summary>
-        /// Asynchronously retrieves a document's metadata from the database using the specified document ID.
+        /// Retrieves an entity from the database by its unique identifier.
         /// </summary>
-        /// <param name="documentId">The unique identifier of the document to be retrieved.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the document metadata.</returns>
-        Task<DocumentMetadata> GetDocumentAsync(string documentId);
+        /// <param name="id">The unique identifier of the entity to be retrieved.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the entity.</returns>
+        Task<TEntity> GetObjByIdAsync(string id);
 
         /// <summary>
-        /// Retrieves a list of all document metadata from the database.
+        /// Retrieves a list of all entities from the database.
         /// </summary>
         /// <returns>
         /// A task that represents the asynchronous operation.
-        /// The task result contains a list of <see cref="DocumentMetadata"/>.
+        /// The task result contains a list of <see cref="TEntity"/>.
         /// </returns>
-        Task<List<DocumentMetadata>> ListDocumentsAsync();
+        Task<List<TEntity>> ListAsync();
 
         /// <summary>
-        /// Asynchronously updates specific fields of an existing document in the database.
+        /// Asynchronously updates specific fields of an existing entity in the database.
         /// </summary>
-        /// <param name="documentId">The unique identifier of the document to be updated.</param>
+        /// <param name="id">The unique identifier of the entity to be updated.</param>
         /// <param name="updates">
         /// A dictionary containing the fields to be updated and their new values.
         /// The key is the name of the field, and the value is the new value for that field.
         /// </param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        /// <exception cref="KeyNotFoundException">Thrown if the document with the specified <paramref name="documentId"/> is not found.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown if the entity with the specified <paramref name="id"/> is not found.</exception>
         /// <exception cref="ArgumentException">Thrown if the update operation encounters invalid field names or types.</exception>
-        Task UpdateDocumentAsync(string documentId, Dictionary<string, object> updates);
+        Task UpdateAsync(string id, Dictionary<string, object> updates);
 
         /// <summary>
-        /// Asynchronously deletes a document from the database.
+        /// Asynchronously deletes an entity from the database.
         /// </summary>
-        /// <param name="documentId">The unique identifier of the document to be deleted.</param>
+        /// <param name="id">The unique identifier of the entity to be deleted.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        /// <exception cref="KeyNotFoundException">Thrown if the document with the specified <paramref name="documentId"/> is not found.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the document cannot be deleted due to constraints or dependencies.</exception>
-        Task DeleteDocumentAsync(string documentId);
+        /// <exception cref="KeyNotFoundException">Thrown if the entity with the specified <paramref name="id"/> is not found.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the entity cannot be deleted due to constraints or dependencies.</exception>
+        Task DeleteAsync(string id);
     }
 }

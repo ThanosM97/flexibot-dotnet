@@ -5,6 +5,7 @@ using Shared.Factories.AI.RAG;
 using Shared.Interfaces.AI.Language;
 using Shared.Interfaces.AI.RAG;
 using Shared.Interfaces.Cache;
+using Shared.Interfaces.Database;
 using Shared.Interfaces.Storage;
 using Shared.Models;
 using Shared.Services.AI.Language;
@@ -21,15 +22,21 @@ namespace ResponseWorker.Services
     /// chunks, leveraging both quick lookups via a QnA service and more comprehensive answer
     /// generation through a RAG service.
     /// </remarks>
+    /// <param name="scopeFactory">The factory used for creating service scopes.</param>
     /// <param name="storageService">The service used for handling storage operations.</param>
     /// <param name="cacheService">The service used for handling caching operations.</param>
     /// <param name="config">The configuration settings for the ChatBot service.</param>
-    public class ChatBot(IStorageService storageService, ICacheService cacheService, IConfiguration config)
+    public class ChatBot(
+        IServiceScopeFactory scopeFactory,
+        IStorageService storageService,
+        ICacheService cacheService,
+        IConfiguration config)
     {
         private readonly IQnAService _qnaService = QnAFactory.GetQnAService(storageService, config);
         private readonly IRetrievalAugmentedGeneration _ragService = RAGFactory.GetRAGService(config);
         private readonly ITextNormalizationService _textNormalizationService = new TextNormalizationService();
         private readonly ICacheService _cacheService = cacheService;
+        private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
         /// <summary>
         /// Asynchronously processes a chat history and user prompt to generate response chunks.
@@ -42,13 +49,19 @@ namespace ResponseWorker.Services
         public async IAsyncEnumerable<ChatBotResult> CompleteChunkAsync(
             string sessionId, string prompt, int pastMessages = 10, bool stream=true)
         {
+            // Create a new service scope to resolve scoped services
+            using var scope = _scopeFactory.CreateScope();
+
+            // Get the document repository service from the scope
+            var repo = scope.ServiceProvider.GetRequiredService<IDatabaseService<ChatLog>>();
+
             // Create a new session if it doesn't exist
             if(!await _cacheService.SessionExistsAsync(sessionId))
             {
                 await _cacheService.CreateSessionAsync(sessionId);
             }
 
-            // Add the user prompt to the chat history
+            // Add the user prompt to the chat history in cache
             await _cacheService.AppendMessageAsync(
                 sessionId,
                 new ChatCompletionMessage { Role = ChatRole.User, Content = prompt });

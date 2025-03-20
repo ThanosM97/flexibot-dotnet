@@ -1,4 +1,6 @@
 using Shared.Interfaces.Database;
+using Shared.Models;
+
 
 namespace StatusWorker.Services
 {
@@ -18,9 +20,9 @@ namespace StatusWorker.Services
         public async Task UpdateDocumentStatusAsync(string documentId, int status)
         {
             using var scope = _scopeFactory.CreateScope();
-            var repo = scope.ServiceProvider.GetRequiredService<IDocumentRepository>();
+            var repo = scope.ServiceProvider.GetRequiredService<IDatabaseService<DocumentMetadata>>();
 
-            await repo.UpdateDocumentAsync(documentId, new Dictionary<string, object>
+            await repo.UpdateAsync(documentId, new Dictionary<string, object>
             {
                 { "Status", status }
             });

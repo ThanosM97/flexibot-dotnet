@@ -86,7 +86,7 @@ namespace Shared.Services.AI.Language
             // Append each message in the chat sequence to the prompt
             foreach (ChatCompletionMessage message in messages)
             {
-                prompt.Append($"[{message.Role}]: {message.Msg}\n");
+                prompt.Append($"[{message.Role}]: {message.Content}\n");
             }
 
             // Append a marker indicating the assistant should now respond.

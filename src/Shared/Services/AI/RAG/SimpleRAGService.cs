@@ -35,7 +35,7 @@ namespace Shared.Services.AI.RAG
         protected override async Task<float[]> GetVectorQueryAsync(List<ChatCompletionMessage> chatHistory)
         {
             // Generate query embedding using the user prompt (last chat message)
-            return  await _embedder.GenerateEmbeddingAsync(chatHistory.Last().Msg);
+            return  await _embedder.GenerateEmbeddingAsync(chatHistory.Last().Content);
         }
     }
 }

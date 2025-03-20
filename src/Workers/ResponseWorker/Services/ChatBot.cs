@@ -53,7 +53,7 @@ namespace ResponseWorker.Services
             List<ChatCompletionMessage> chat =
             [
                 .. history ?? Enumerable.Empty<ChatCompletionMessage>(),
-                new ChatCompletionMessage { Msg = prompt, Role = ChatRole.User },
+                new ChatCompletionMessage { Content = prompt, Role = ChatRole.User },
             ];
 
             // Yield chunks of the response

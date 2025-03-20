@@ -123,9 +123,9 @@ namespace Shared.Services.AI.RAG
 
             // Prepend system prompt to chatHistory
             List<ChatCompletionMessage> chatMessages = [
-                new ChatCompletionMessage { Msg = systemPrompt, Role = ChatRole.System },
+                new ChatCompletionMessage { Content = systemPrompt, Role = ChatRole.System },
                 .. chatHistory,
-                new ChatCompletionMessage { Msg = RAGPrompts.RAGInstructionRepeat(), Role = ChatRole.System }  // Repeat instructions
+                new ChatCompletionMessage { Content = RAGPrompts.RAGInstructionRepeat(), Role = ChatRole.System }  // Repeat instructions
             ];
 
             return chatMessages;

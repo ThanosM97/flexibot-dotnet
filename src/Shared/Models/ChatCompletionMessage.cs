@@ -13,7 +13,7 @@ namespace Shared.Models
         /// <summary>
         /// Gets or sets the message content.
         /// </summary>
-        public required string Msg { get; set; }
+        public required string Content { get; set; }
     }
 
     /// <summary>

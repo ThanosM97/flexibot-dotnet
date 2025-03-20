@@ -35,7 +35,7 @@ namespace Shared.Services.AI.RAG
         {
             // Prepend a system instruction for hypothetical document generation
             List<ChatCompletionMessage> chat = [
-                new ChatCompletionMessage { Msg = RAGPrompts.HyDEInstruction(), Role = ChatRole.System },
+                new ChatCompletionMessage { Content = RAGPrompts.HyDEInstruction(), Role = ChatRole.System },
                 ..chatHistory
             ];
 

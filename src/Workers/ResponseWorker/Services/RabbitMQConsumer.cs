@@ -45,7 +45,7 @@ namespace ResponseWorker.Services
                     _logger.LogInformation($"{message.Prompt}");
 
                     await foreach(ChatBotResult chatBotResult in _chatBot.CompleteChunkAsync(
-                        message.History, message.Prompt, stream: true))
+                        message.SessionId, message.Prompt, message.PastMessagesIncluded, stream: true))
                     {
                         // Create ChatResponseStreamedEvent
                         ChatResponseStreamedEvent streamChunkEvent = new(

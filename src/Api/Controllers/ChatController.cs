@@ -19,7 +19,7 @@ public class ChatController(RabbitMQPublisher publisher) : ControllerBase
     /// <summary>
     /// Submits a chat question and initiates processing by publishing a chat prompted event.
     /// </summary>
-    /// <param name="request">The chat request containing the prompt.</param>
+    /// <param name="request">The chat request containing the session id and the prompt.</param>
     /// <returns>
     /// Returns a 202 Accepted response with a generated job ID if the request is successfully processed.
     /// </returns>
@@ -38,7 +38,7 @@ public class ChatController(RabbitMQPublisher publisher) : ControllerBase
         // after the client has subscribed to the job group in the hub (OnConnectedAsync).
         // TODO: Fix the race condition
         await _publisher.PublishAsync(
-            new ChatPromptedEvent(jobId, request.Prompt, request.History, DateTime.UtcNow), "chat_prompted");
+            new ChatPromptedEvent(jobId, request.SessionId, request.Prompt, request.PastMessagesIncluded, DateTime.UtcNow), "chat_prompted");
 
         // Return the job ID
         return Accepted(new { jobId });

@@ -6,14 +6,19 @@ namespace Shared.Models
     public class ChatRequest
     {
         /// <summary>
+        /// Gets or sets the session ID for the chat request.
+        /// </summary>
+        public required string SessionId { get; set; }
+
+        /// <summary>
         /// Gets or sets the prompt for the chat request.
         /// </summary>
         public required string Prompt { get; set; }
 
         /// <summary>
-        /// Gets or sets the conversation history.
-        /// This property is optional; if provided, it represents the previous chat messages.
+        /// Gets or sets the number of past messages to include for the response.
+        /// Default is 10.
         /// </summary>
-        public List<ChatCompletionMessage>? History { get; set; }
+        public int PastMessagesIncluded { get; set; } = 10;
     }
 }

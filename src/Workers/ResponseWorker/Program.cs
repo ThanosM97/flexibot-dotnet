@@ -1,8 +1,11 @@
 using RabbitMQ.Client;
+using StackExchange.Redis;
 
 using ResponseWorker;
 using ResponseWorker.Services;
+using Shared.Interfaces.Cache;
 using Shared.Interfaces.Storage;
+using Shared.Services.Cache;
 using Shared.Services.Storage;
 
 
@@ -17,10 +20,15 @@ var factory = new ConnectionFactory
 var connection = factory.CreateConnectionAsync();
 builder.Services.AddSingleton(connection.Result);
 
+// Configure Redis connection
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("REDIS")));
+
 // Add services
 builder.Services.AddSingleton<ChatBot>();
 builder.Services.AddSingleton<IStorageService, MinioService>();
 builder.Services.AddSingleton<RabbitMQConsumer>();
+builder.Services.AddSingleton<ICacheService, RedisService>();
 builder.Services.AddHostedService<Worker>();
 
 // Build and run the host

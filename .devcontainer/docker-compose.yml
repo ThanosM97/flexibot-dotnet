@@ -4,16 +4,18 @@ services:
       context: .
       dockerfile: Dockerfile
     platform: linux/amd64
-    container_name: flexbot_app
+    container_name: flexibot_app
     depends_on:
       - rabbitmq
       - postgres
       - qdrant
       - minio
       - ollama
+      - redis
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=flexbot;Username=postgres;Password=postgres
+      - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=flexibot;Username=postgres;Password=postgres
+      - ConnectionStrings__REDIS=redis:6379,abortConnect=false
       - SEARCH__PROVIDER=Qdrant
       - SEARCH__DOCUMENT_COLLECTION=documents
       - SEARCH__QNA_COLLECTION=qna
@@ -38,51 +40,52 @@ services:
       - QNA__METHOD=semantic
       - QNA__CONFIDENCE_THRESHOLD=0.7
       - QNA__DEFAULT_ANSWER=I don't know the answer to this question.
+      - REDIS__TTL=00:30:00
     ports:
       - "5000:5000"
     volumes:
       - ..:/workspaces:cached
     command: sleep infinity
     networks:
-      - flexbot_network
+      - flexibot_network
 
   rabbitmq:
     image: "rabbitmq:3-management"
-    container_name: flexbot_rabbitmq
+    container_name: flexibot_rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - flexbot_network
+      - flexibot_network
 
   postgres:
     image: "postgres:15"
-    container_name: flexbot_postgres
+    container_name: flexibot_postgres
     environment:
-      POSTGRES_DB: flexbot
+      POSTGRES_DB: flexibot
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     networks:
-      - flexbot_network
+      - flexibot_network
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   qdrant:
     image: "qdrant/qdrant:v1.7.3"
-    container_name: flexbot_qdrant
+    container_name: flexibot_qdrant
     ports:
       - "6333:6333"
       - "6334:6334"  # gRPC
     networks:
-      - flexbot_network
+      - flexibot_network
     volumes:
       - qdrant_data:/qdrant/storage
 
   minio:
     image: "minio/minio:latest"
-    container_name: flexbot_minio
+    container_name: flexibot_minio
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -91,26 +94,38 @@ services:
       - "9000:9000"
       - "9001:9001"
     networks:
-      - flexbot_network
+      - flexibot_network
     volumes:
       - minio_data:/data
 
   ollama:
     image: "ollama/ollama"
-    container_name: flexbot_ollama
-    volumes:
-      - ollama_data:/root/.ollama
+    container_name: flexibot_ollama
     ports:
       - "11434:11434"
     networks:
-      - flexbot_network
+      - flexibot_network
+    volumes:
+      - ollama_data:/root/.ollama
+
+  redis:
+    image: "redis:alpine"
+    container_name: flexibot_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - flexibot_network
+    volumes:
+      - redis_data:/data
+
 
 volumes:
   postgres_data:
   qdrant_data:
   minio_data:
   ollama_data:
+  redis_data:
 
 networks:
-  flexbot_network:
+  flexibot_network:
     driver: bridge

@@ -124,13 +124,14 @@ namespace Shared.Services.Search.VectorDatabase
 
         /// <inheritdoc/>
         public async Task<IEnumerable<SearchResult>> SearchAsync(
-            string collectionName, float[] queryVector, int topK)
+            string collectionName, float[] queryVector, int topK, float scoreThreshold = 0.7f)
         {
             // Perform a search in the specified collection using the query vector
             var searchResults = await _client.SearchAsync(
                 collectionName,
                 queryVector,
-                limit: (ulong)topK
+                limit: (ulong)topK,
+                scoreThreshold: scoreThreshold
             );
 
             // Convert the search results to a list of SearchResult objects

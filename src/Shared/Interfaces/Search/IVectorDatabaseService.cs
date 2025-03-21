@@ -53,9 +53,10 @@ namespace Shared.Interfaces.Search
         /// <param name="collectionName">The name of the collection to search.</param>
         /// <param name="queryVector">The vector to use as the query for the search.</param>
         /// <param name="topK">The number of top results to return.</param>
+        /// <param name="scoreThreshold">The minimum similarity score threshold for search results.</param>
         /// <returns>A task representing the asynchronous operation, with a result of an enumerable
         /// collection of <see cref="SearchResult"/> objects representing the nearest vectors found.</returns>
-        Task<IEnumerable<SearchResult>> SearchAsync(string collectionName, float[] queryVector, int topK);
+        Task<IEnumerable<SearchResult>> SearchAsync(string collectionName, float[] queryVector, int topK, float scoreThreshold = 0.7f);
 
         /// <summary>
         /// Searches for the nearest vectors to the specified query vector within the QnA collection.

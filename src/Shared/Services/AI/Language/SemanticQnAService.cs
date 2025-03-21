@@ -34,7 +34,7 @@ public class SemanticQnAService(
     private readonly int _vectorSize = int.Parse(config.GetSection("SEARCH")["VECTOR_SIZE"] ?? "384");
     private readonly string _collectionName = config.GetSection("SEARCH")["QNA_COLLECTION"] ?? "qna";
     private readonly string _defaultAnswer = config.GetSection("SEARCH")["DEFAULT_ANSWER"] ?? "I don't know the answer to this question.";
-    private readonly float _confidenceThreshold = float.Parse(config.GetSection("SEARCH")["CONFIDENCE_THRESHOLD"] ?? "0.7");
+    private readonly float _confidenceThreshold = float.Parse(config.GetSection("QNA")["CONFIDENCE_THRESHOLD"] ?? "0.85");
     private readonly string _bucketName = config.GetSection("MINIO")["QNA_BUCKET"] ?? "qna";
 
     /// <inheritdoc/>

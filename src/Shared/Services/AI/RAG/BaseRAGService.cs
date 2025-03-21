@@ -23,6 +23,7 @@ namespace Shared.Services.AI.RAG
         protected readonly IEmbeddingService _embedder;
         protected readonly IChatService _generator;
         protected readonly string _collectionName;
+        protected readonly float _docsConfidenceThreshold;
         protected readonly int _topK;
         protected readonly float _confidenceThreshold;
         protected readonly string _defaultAnswer;
@@ -48,6 +49,7 @@ namespace Shared.Services.AI.RAG
             var ragConfig = config.GetSection("RAG");
             _collectionName = config.GetSection("SEARCH")["DOCUMENT_COLLECTION"] ?? throw new InvalidOperationException(
                 "SEARCH__DOCUMENT_COLLECTION is not set.");
+            _docsConfidenceThreshold = float.Parse(config.GetSection("SEARCH")["CONFIDENCE_THRESHOLD"] ?? "0.7");
             _topK = int.Parse(ragConfig["TOP_K"] ?? "5");
             _confidenceThreshold = float.Parse(ragConfig["CONFIDENCE_THRESHOLD"] ?? "0.7");
             _defaultAnswer = ragConfig["DEFAULT_ANSWER"] ?? "I don't know the answer to this question";
@@ -64,7 +66,8 @@ namespace Shared.Services.AI.RAG
             IEnumerable<SearchResult> chunks = await _retriever.SearchAsync(
                 _collectionName,
                 embeddings,
-                topK: _topK
+                topK: _topK,
+                scoreThreshold: _docsConfidenceThreshold
             );
 
             // Get chat messages

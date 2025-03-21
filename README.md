@@ -2,7 +2,7 @@
 
 [![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/ThanosM97/flexibot-dotnet.git)
 
-Implementation of an asynchronous, event-driven RAG chatbot using ASP.NET Core, RabbitMQ, Qdrant, MinIO, and PostgreSQL. It leverages a QnA knowledge base as a cache layer for quick question-answer lookup.
+Implementation of an asynchronous, event-driven RAG chatbot using ASP.NET Core. It also leverages a semantic cache layer for question-answer lookup.
 
 ## Features
 
@@ -13,6 +13,8 @@ Implementation of an asynchronous, event-driven RAG chatbot using ASP.NET Core, 
 - **Cloud-Neutral Storage**: MinIO (S3-compatible) for object storage
 - **Vector Search**: Qdrant vector database for semantic search
 - **Open Source Models**: Ollama integration for embeddings and LLM
+- **Conversation History Cache**: Redis cache for efficient storage and retrieval of chat conversation history
+- **Chat Logs**: PostgreSQL database for storing chat interactions, enabling cache reconstruction after expiration
 
 ## Architecture Overview
 The architecture diagram below outlines the question-answering flow of FlexiBOT. You can find corresponding diagrams for the document upload and QnA CSV file upload processes [here](./docs/diagrams/).
@@ -67,15 +69,16 @@ src/
    - **Indexer**: Qdrant knowledge base update
    - **Deleter**: Document removal
    - **Status**: Document metadata status update
-   - **QnA**: CSV processing for the QnA cache
+   - **QnA**: CSV processing for the QnA semantic cache
    - **Response**: Chat response generation
 
 3. **Services**:
-   - Message Queue (**RabbitMQ**)
+   - Message queue (**RabbitMQ**)
    - Vector database (**Qdrant**)
-   - Metadata storage (**PostgreSQL**)
+   - Metadata and chat logs storage (**PostgreSQL**)
    - Object storage (**MinIO**)
    - Model serving (**Ollama**)
+   - Conversation history cache (**Redis**)
 
 ## Getting Started
 
@@ -107,9 +110,9 @@ A sample of the variables that need to be set:
 | Storage         | `MINIO__ENDPOINT`            | minio:9000              |
 | Storage         | `MINIO__QNA_BUCKET`          | qna                     |
 | LLM             | `OLLAMA__LLM_MODEL`          | llama3.2:1b             |
-| RAG             | `RAG__METHOD`                | hyde                    |
+| RAG             | `RAG__METHOD`                | simple                  |
 
-A full list of the available configurations can be found here.
+The full list of the available configurations can be found in [configurations.md](docs/configurations.md).
 
 ### Running the Application
 
@@ -118,7 +121,7 @@ A full list of the available configurations can be found here.
    docker-compose up -d
    ```
 
-2. Before running the application, you first need to manually create the `documents` table in PostgreSQL (use the DDL script provided in [001_create_documents_table.sql](./src/Shared/Database/001_create_documents_table.sql)) and the document and qna buckets for MinIO you defined in your environmental variables.
+2. Before running the application, you first need to manually create the `documents` and `chat_logs` tables in PostgreSQL (use the DDL scripts provided [here](./src/Shared/Database/)) and the buckets for MinIO with the names defined in the environmental variables (default bucket names: `qna` and `documents`).
 
 3. Run workers (from src/ directory):
    ```bash
@@ -161,17 +164,8 @@ POST /chat HTTP/1.1
 Content-Type: application/json
 
 {
-  "prompt": "Can you explain how retrieval-augmented generation works?",
-  "history": [
-    {
-      "role": "user",
-      "msg": "Hello, can you help me with data science concepts?"
-    },
-    {
-      "role": "assistant",
-      "msg": "Of course! I can explain various data science concepts. What specifically would you like to know?"
-    }
-  ]
+   "sessionId": "<GUID>",
+   "prompt": "Can you explain how retrieval-augmented generation works?"
 }
 ```
 
@@ -188,6 +182,7 @@ The `.devcontainer` includes:
   - PostgreSQL (5432/tcp)
   - MinIO (9000/tcp)
   - Ollama (11434/tcp)
+  - Redis (6379/tcp)
 
 Access services at:
 - MinIO Console: `http://localhost:9001`
@@ -208,6 +203,6 @@ Access services at:
 - [ ] Authentication/Authorization
 - [ ] Cloud deployment templates
 - [ ] Monitoring/Logging integration
-- [ ] Advanced chunking strategies
 - [ ] Guard rails (content filtering)
 - [ ] Advanced document processing
+- [ ] Automated question-answer extraction from ingested documents for the semantic cache

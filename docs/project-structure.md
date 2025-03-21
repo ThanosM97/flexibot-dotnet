@@ -21,6 +21,7 @@ The `src/` directory contains all the main components of the application, includ
 ### Shared
 - **Database**: SQL scripts and database-related services.
   - **001_create_documents_table.sql**: Script for creating the documents table.
+  - **101_create_chat_logs_table.sql**: Script for creating the chat_logs table.
 - **Events**: Event definitions for the event-driven architecture.
   - **ChatPromptedEvent.cs**
   - **ChatResponseStreamedEvent.cs**
@@ -52,6 +53,8 @@ The `src/` directory contains all the main components of the application, includ
       - **ITextNormalizationService.cs**
     - **RAG**
       - **IRagService.cs**
+  - **Cache**
+    - **ICacheService.cs**
   - **Database**
     - **IDocumentRepositoryService.cs**
   - **Search**
@@ -62,6 +65,7 @@ The `src/` directory contains all the main components of the application, includ
   - **ChatBotResult.cs**
   - **ChatCompletionMessage.cs**
   - **ChatCompletionResult.cs**
+  - **ChatLog.cs**
   - **ChatRequest.cs**
   - **DocumentChunk.cs**
   - **DocumentMetadata.cs**
@@ -84,6 +88,8 @@ The `src/` directory contains all the main components of the application, includ
       - **BaseRAGService.cs**: Base class for RAG-related service logic.
       - **HyDEService.cs**: Implementation of HyDE (hypothetical document extraction) algorithm.
       - **SimpleRAGService.cs**: Implementation of a simple RAG algorithm.
+  - **Cache**
+    - **RedisService.cs**
   - **Database**
     - **PostgresService.cs**
   - **RabbitMQConsumerBase.cs**: Base class for RabbitMQ consumers, handling common logic.

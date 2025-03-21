@@ -59,9 +59,12 @@ public class RedisService(IConnectionMultiplexer redis, IConfiguration config) :
         var db = _redis.GetDatabase();
         var transaction = db.CreateTransaction();
 
+        // Create a unique identifier
+        var uniqueId = Guid.NewGuid().ToString();
+
         // Create sorted set entry
         var messageEntry = new SortedSetEntry(
-            element: $"{message.Role}|{message.Content}",
+            element: $"{message.Role}|{message.Content}|{uniqueId}",
             score: DateTime.UtcNow.Ticks
         );
 
@@ -103,7 +106,7 @@ public class RedisService(IConnectionMultiplexer redis, IConfiguration config) :
         // Parse entries into ChatCompletionMessage objects
         return [.. entries.Select(entry =>
         {
-            string[] parts = entry.ToString().Split('|', 2);
+            string[] parts = entry.ToString().Split('|', 3);
             return new ChatCompletionMessage {  Role = parts[0], Content = parts[1] };
         })];
     }

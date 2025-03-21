@@ -36,16 +36,16 @@ namespace Shared.Models
         public DateTime RequestTimestamp { get; set; }
 
         /// <summary>
-        /// Gets or sets the year extracted from the request timestamp.
+        /// Gets the year extracted from the request timestamp.
         /// </summary>
         [Column("request_year")]
-        public int RequestYear { get; set; }
+        public int RequestYear { get; }
 
         /// <summary>
-        /// Gets or sets the month extracted from the request timestamp.
+        /// Gets the month extracted from the request timestamp.
         /// </summary>
         [Column("request_month")]
-        public int RequestMonth { get; set; }
+        public int RequestMonth { get; }
 
         /// <summary>
         /// Gets or sets the answer provided in the chat.

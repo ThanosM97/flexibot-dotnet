@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 using Shared.Events;
 using Shared.Interfaces.Database;
@@ -23,10 +24,14 @@ namespace Shared.Services.Database
         {
             modelBuilder.Entity<DocumentMetadata>();
 
-            // Configure composite key
             modelBuilder.Entity<ChatLog>(entity =>
             {
+                // Configure composite key
                 entity.HasKey(e => new { e.SessionId, e.MessageId });
+
+                // Ignore auto-generated columns
+                entity.Ignore(e => e.RequestYear);
+                entity.Ignore(e => e.RequestMonth);
             });
         }
     }
@@ -51,11 +56,34 @@ namespace Shared.Services.Database
         }
 
         /// <inheritdoc/>
-        public async Task<TEntity> GetObjByIdAsync(string id)
+        public async Task<TEntity> GetObjByIdAsync(params object[] keys)
         {
-            // Find the entity by its ID. If not found, throw a KeyNotFoundException
-            return await _context.Set<TEntity>().FindAsync(id) ?? throw new KeyNotFoundException(
-                $"Entity with ID {id} not found.");
+            // Validate input
+            if (keys == null || keys.Length == 0)
+                throw new ArgumentException("At least one key must be provided");
+
+            // Find the entity by its key(s). If not found, throw a KeyNotFoundException
+            return await _context.Set<TEntity>().FindAsync(keys) ?? throw new KeyNotFoundException(
+                $"{typeof(TEntity).Name} with keys ({string.Join(", ", keys)}) not found.");
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<TEntity>> GetObjByFilterAsync(
+            Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IQueryable<TEntity>> orderBy = null)
+        {
+            IQueryable<TEntity> query = _context.Set<TEntity>();
+
+            // Apply the filter expression
+            query = query.Where(filter);
+
+            // Apply the order by expression if provided
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Return entities from the database that match the filter
+            return await query.ToListAsync();
         }
 
         /// <inheritdoc/>
@@ -66,10 +94,10 @@ namespace Shared.Services.Database
         }
 
         /// <inheritdoc/>
-        public async Task UpdateAsync(string id, Dictionary<string, object> updates)
+        public async Task UpdateAsync(Dictionary<string, object> updates, params object[] keys)
         {
-            // Find the entity by its ID. If not found, throw a KeyNotFoundException
-            var entity = await GetObjByIdAsync(id);
+            // Find the entity by its key(s). If not found, throw a KeyNotFoundException
+            var entity = await GetObjByIdAsync(keys);
             var properties = typeof(TEntity).GetProperties();
 
             // Check if the entity is a DocumentMetadata
@@ -78,7 +106,7 @@ namespace Shared.Services.Database
                 // Check if the entity has been deleted or failed
                 if (document.Status == (int)DocumentStatus.Deleted || document.Status == (int)DocumentStatus.Failed)
                 {
-                    throw new KeyNotFoundException($"Document with ID {id} not found.");
+                    throw new KeyNotFoundException($"Document with ID ({string.Join(", ", keys)}) not found.");
                 }
             }
 
@@ -100,10 +128,10 @@ namespace Shared.Services.Database
         }
 
         /// <inheritdoc/>
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(params object[] keys)
         {
-            // Find the entity by its ID. If not found, throw a KeyNotFoundException
-            var entity = await GetObjByIdAsync(id);
+            // Find the entity by its key(s). If not found, throw a KeyNotFoundException
+            var entity = await GetObjByIdAsync(keys);
 
             // Remove the entity from the DbSet
             _context.Set<TEntity>().Remove(entity);

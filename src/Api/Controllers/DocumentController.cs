@@ -178,10 +178,13 @@ public class DocumentsController(
         try
         {
             // Update the document status to Deleted
-            await _documentRepository.UpdateAsync(documentId, new Dictionary<string, object>
-            {
-                { "Status", DocumentStatus.Deleted }
-            });
+            await _documentRepository.UpdateAsync(
+                new Dictionary<string, object>
+                {
+                    { "Status", DocumentStatus.Deleted }
+                },
+                documentId
+            );
         }
         catch (KeyNotFoundException)
         {

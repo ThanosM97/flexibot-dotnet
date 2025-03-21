@@ -22,10 +22,12 @@ namespace StatusWorker.Services
             using var scope = _scopeFactory.CreateScope();
             var repo = scope.ServiceProvider.GetRequiredService<IDatabaseService<DocumentMetadata>>();
 
-            await repo.UpdateAsync(documentId, new Dictionary<string, object>
-            {
-                { "Status", status }
-            });
+            await repo.UpdateAsync(
+                new Dictionary<string, object>
+                {
+                    { "Status", status }
+                },
+                documentId);
         }
     }
 }

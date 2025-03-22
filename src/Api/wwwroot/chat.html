@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title>FlexiBOT Chat</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>FlexiBOT</h1>
+                <div class="header_buttons">
+                    <button id="newSessionButton" class="session-button">New Session</button>
+                    <button id="configToggleButton" class="config-button">⚙️ Settings</button>
+                </div>
+            </div>
+
+            <div class="config-panel" id="configPanel">
+                <label for="pastMessagesInput">Include past messages:</label>
+                <input type="number" id="pastMessagesInput" min="1" max="20" value="10">
+            </div>
+
+            <div class="chat-history" id="chatHistory"></div>
+
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Type your question...">
+                <button id="sendButton">
+                    <span class="button-text">Send</span>
+                    <span class="button-loader" hidden></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="/js/chat.js"></script>
+</body>
+</html>

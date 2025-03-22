@@ -20,6 +20,16 @@ builder.Logging.AddConsole();
 // Add MVC services
 builder.Services.AddControllers();
 
+// Configure CORS
+builder.Services.AddCors(options => {
+    options.AddPolicy("ClientPolicy", policy => {
+        policy.WithOrigins("http://localhost:5229")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // Add database context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration["ConnectionStrings:Postgres"]));
@@ -46,6 +56,10 @@ builder.Services.AddHostedService<ChatResponseStreamBackgroundService>();
 
 // Build the app
 var app = builder.Build();
+
+// Configure static files
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 // Ensure RabbitMQPublisher is initialized at startup
 var publisher = app.Services.GetRequiredService<RabbitMQPublisher>();

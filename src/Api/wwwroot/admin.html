@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title>FlexiBOT Admin Panel</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>FlexiBOT Admin Panel</h1>
+
+        <!-- Document Upload Section -->
+        <section class="upload-section">
+            <h2>Document Management</h2>
+            <div class="document-list" id="documentList">
+                <!-- Existing documents will be loaded here -->
+            </div>
+
+            <div class="drop-zone" id="docDropZone">
+                <span class="drop-text">Drag & Drop Documents Here<br>(PDF, DOCX)</span>
+                <input type="file" id="docInput" multiple hidden>
+            </div>
+            <div class="upload-status" id="docStatus"></div>
+        </section>
+
+        <!-- QnA CSV Upload Section -->
+        <section class="upload-section">
+            <h2>QnA Management</h2>
+            <div class="qna-list" id="qnaList">
+                <!-- Existing QnA file will be loaded here -->
+            </div>
+
+            <div class="file-input-container">
+                <label class="file-label">
+                    <input type="file" id="qnaInput" accept=".csv" class="hidden-file-input">
+                    <span class="file-button">Upload QnA CSV</span>
+                </label>
+            </div>
+            <div class="upload-status" id="qnaStatus"></div>
+        </section>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+.chat-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.chat-history {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.message {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    max-width: 70%;
+    animation: fadeIn 0.3s ease;
+}
+
+.user-message {
+    background: #e3f2fd;
+    margin-left: auto;
+}
+
+.bot-message {
+    background: #f5f5f5;
+    margin-right: auto;
+}
+
+.chat-input {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+#messageInput {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+#sendButton {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#sendButton:hover {
+    background: #1976D2;
+}
+
+.button-loader {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Session Controls */
+.session-button {
+    background: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    height: 32px;
+    cursor: pointer;
+}
+
+.session-button:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+
+/* Conversation History Controls */
+.config-button {
+    background: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    line-height: 1;
+    height: 32px;
+    cursor: pointer;
+}
+
+.config-button:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.config-panel {
+    display: none;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+}
+
+.config-panel label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-right: 0.5rem;
+}
+
+#pastMessagesInput {
+    width: 50px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    text-align: center;
+}
+

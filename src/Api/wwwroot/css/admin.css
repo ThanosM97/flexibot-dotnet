@@ -1,0 +1,147 @@
+/* Upload Section */
+.upload-section {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.drop-zone {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+    border-color: var(--primary-color);
+    background-color: #f8f9ff;
+}
+
+/* Document List */
+.document-list {
+    margin-bottom: 1.5rem;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.document-icon {
+    width: 32px;
+    margin-right: 1rem;
+    color: #666;
+}
+
+/* Status Indicators */
+.processing-item {
+    background: #fff8e1;
+}
+
+.status-indicator {
+    font-size: 0.8rem;
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* File Input Specific */
+.file-input-container {
+    margin-top: 1rem;
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.file-button {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.file-button:hover {
+    background: #1976D2;
+}
+
+/* QnA Specific */
+.qna-list {
+    margin-bottom: 1.5rem;
+}
+
+.qna-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.qna-icon {
+    color: #1B5E20;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+/* Action Buttons */
+.document-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.action-button {
+    padding: 0.3rem 0.6rem;
+    border: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.download-button {
+    background: #e3f2fd;
+    color: var(--primary-color);
+}
+
+.delete-button {
+    background: #ffebee;
+    color: #f44336;
+}
+
+/* Upload Status */
+.upload-status {
+    margin-top: 1rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.error {
+    color: #f44336;
+    background: #ffebee;
+}

@@ -1,6 +1,6 @@
 # FlexiBOT - Cloud-Agnostic RAG Chatbot
 
-[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/ThanosM97/flexibot-dotnet.git)
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/ThanosM97/flexibot-dotnet.git) [![Build](https://github.com/ThanosM97/flexibot-dotnet/actions/workflows/build.yml/badge.svg)](https://github.com/ThanosM97/flexibot-dotnet/actions)
 
 Implementation of an asynchronous, event-driven RAG chatbot using ASP.NET Core. It also leverages a semantic cache layer for question-answer lookup.
 

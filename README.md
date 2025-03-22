@@ -210,3 +210,11 @@ Access services at:
 - [ ] Guard rails (content filtering)
 - [ ] Running summary of conversation history
 - [ ] Fault tolerance patterns (Retries/Circuit Breakers)
+
+## License
+
+This project is licensed under the GNU AGPL v3 license - see the [LICENSE](LICENSE) file for details.
+
+### Why AGPL v3?
+
+Use of MinIO, which is licensed under the GNU AGPL v3, requires that the project must also be licensed under GNU AGPL v3.

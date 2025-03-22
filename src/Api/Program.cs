@@ -68,6 +68,6 @@ var publisher = app.Services.GetRequiredService<RabbitMQPublisher>();
 app.MapControllers();
 
 // Map SignalR hub
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ChatHub>("/api/chatHub");
 
 app.Run();

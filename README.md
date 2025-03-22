@@ -144,20 +144,20 @@ The full list of the available configurations can be found in [configurations.md
 ### Endpoints
 
 #### Document Management
-- **`POST /documents/upload `**– Upload RAG documents (e.g., DOCX, PDF)
-- **`GET /documents/status/{jobId}`** – Get the status of a document processing job
-- **`GET /documents/list`** – List all uploaded documents
-- **`GET /documents/download/{documentId}`** – Download a specific document
-- **`DELETE /documents/delete/{documentId}`** – Delete a specific document
+- **`POST /api/admin/documents/upload `**– Upload RAG documents (e.g., DOCX, PDF)
+- **`GET /api/admin/documents/status/{jobId}`** – Get the status of a document processing job
+- **`GET /api/admin/documents/list`** – List all uploaded documents
+- **`GET /api/admin/documents/download/{documentId}`** – Download a specific document
+- **`DELETE /api/admin/documents/delete/{documentId}`** – Delete a specific document
 
 #### QnA Management
-- **`POST /qna/upload`** – Upload QnA CSV files
-- **`GET /qna/download`** – Download the QnA file
-- **`DELETE /qna/delete`** – Delete the QnA file
+- **`POST /api/admin/qna/upload`** – Upload QnA CSV files
+- **`GET /api/admin/qna/download`** – Download the QnA file
+- **`DELETE /api/admin/qna/delete`** – Delete the QnA file
 
 #### Chatbot Interaction
-- **`POST /chat`** – Submit questions for the chatbot
-- **`/chathub`** – SignalR hub for real-time response streaming
+- **`POST /api/chat`** – Submit questions for the chatbot
+- **`/api/chathub`** – SignalR hub for real-time response streaming
 
 
 ### Example Requests
@@ -166,7 +166,7 @@ You can explore all of the available example requests in the [.restclient](/.res
 
 #### **Chat Request**
 ```http
-POST /chat HTTP/1.1
+POST /api/chat HTTP/1.1
 Content-Type: application/json
 
 {

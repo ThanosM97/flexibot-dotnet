@@ -11,7 +11,7 @@ namespace Api.Controllers;
 /// Controller responsible for handling chat requests.
 /// </summary>
 [ApiController]
-[Route("chat")]
+[Route("api/chat")]
 public class ChatController(RabbitMQPublisher publisher) : ControllerBase
 {
     private readonly RabbitMQPublisher _publisher = publisher;

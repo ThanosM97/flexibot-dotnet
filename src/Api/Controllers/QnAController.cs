@@ -11,7 +11,7 @@ namespace Api.Controllers;
 /// Controller for managing QnA operations such as upload, download, and delete.
 /// </summary>
 [ApiController]
-[Route("qna")]
+[Route("api/admin/qna")]
 public class QnAController(
     IStorageService storageService, RabbitMQPublisher publisher, IConfiguration config) : ControllerBase
 {

@@ -1,5 +1,5 @@
 ### Upload QnA File
-POST http://localhost:5229/qna/upload
+POST http://localhost:5229/api/admin/qna/upload
 Content-Type: multipart/form-data; boundary=boundary123
 
 --boundary123
@@ -11,8 +11,8 @@ Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.doc
 
 
 ### Get QnA
-GET http://localhost:5229/qna/download HTTP/1.1
+GET http://localhost:5229/api/admin/qna/download HTTP/1.1
 
 
 ### Delete QnA
-DELETE http://localhost:5229/qna/delete HTTP/1.1
+DELETE http://localhost:5229/api/admin/qna/delete HTTP/1.1

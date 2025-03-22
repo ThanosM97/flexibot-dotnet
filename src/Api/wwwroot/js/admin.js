@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     docDropZone.addEventListener('click', () => docInput.click());
     docDropZone.addEventListener('drop', async (e) => {
         e.preventDefault();
-        await handleFileUpload(e.dataTransfer.files, '/documents/upload', docStatus);
+        await handleFileUpload(e.dataTransfer.files, '/api/admin/documents/upload', docStatus);
     });
     docInput.addEventListener('change', async (e) => {
-        await handleFileUpload(e.target.files, '/documents/upload', docStatus);
+        await handleFileUpload(e.target.files, '/api/admin/documents/upload', docStatus);
     });
 
     // Drag and Drop Events
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('file', file);
 
         try {
-            const response = await fetch('/qna/upload', { method: 'POST', body: formData });
+            const response = await fetch('/api/admin/qna/upload', { method: 'POST', body: formData });
             if (response.ok) await loadQnAFile();
         } catch (error) {
             console.log("QnA upload error.")
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to Load Document List
     async function loadDocumentList() {
         try {
-            const response = await fetch('/documents/list');
+            const response = await fetch('/api/admin/documents/list');
             const documents = await response.json();
             documentList.innerHTML = documents.map(doc => `
                 <div class="document-item">
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to Load QnA File
     async function loadQnAFile() {
         try {
-            const response = await fetch('/qna/download');
+            const response = await fetch('/api/admin/qna/download');
             qnaList.innerHTML = response.status === 200 ? `
                 <div class="qna-item">
                     <i class="fas fa-file-csv qna-icon"></i>
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function trackDocumentStatus(listItem, jobId) {
         const checkStatus = async () => {
             try {
-                const response = await fetch(`/documents/status/${jobId}`);
+                const response = await fetch(`/api/admin/documents/status/${jobId}`);
                 const progress = await response.json();
 
                 switch (progress.status) {
@@ -202,8 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Document Actions
-    window.downloadDocument = async (documentId) => window.open(`/documents/download/${documentId}`, '_blank');
-    window.deleteDocument = async (documentId) => confirm('Are you sure you want to delete this document?') && (await fetch(`/documents/delete/${documentId}`, { method: 'DELETE' })).ok && loadDocumentList();
-    window.downloadQnA = () => window.open('/qna/download', '_blank');
-    window.deleteQnA = async () => confirm('Are you sure you want to delete the QnA file?') && (await fetch('/qna/delete', { method: 'DELETE' })).ok && (qnaList.innerHTML = '');
+    window.downloadDocument = async (documentId) => window.open(`/api/admin/documents/download/${documentId}`, '_blank');
+    window.deleteDocument = async (documentId) => confirm('Are you sure you want to delete this document?') && (await fetch(`/api/admin/documents/delete/${documentId}`, { method: 'DELETE' })).ok && loadDocumentList();
+    window.downloadQnA = () => window.open('/api/admin/qna/download', '_blank');
+    window.deleteQnA = async () => confirm('Are you sure you want to delete the QnA file?') && (await fetch('/api/admin/qna/delete', { method: 'DELETE' })).ok && (qnaList.innerHTML = '');
 });

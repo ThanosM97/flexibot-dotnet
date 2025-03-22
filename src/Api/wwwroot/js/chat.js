@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize SignalR Connection
     function initConnection() {
         var connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://127.0.0.1:5229/chatHub")
+            .withUrl("http://127.0.0.1:5229/api/chatHub")
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pastMessagesIncluded = parseInt(pastMessagesInput.value) || 10;
 
         try {
-            const response = await fetch('/chat', {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId, prompt: message, pastMessagesIncluded: pastMessagesIncluded })

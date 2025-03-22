@@ -13,7 +13,7 @@ namespace Api.Controllers;
 /// Controller for managing document-related operations such as uploading and checking status.
 /// </summary>
 [ApiController]
-[Route("documents")]
+[Route("api/admin/documents")]
 public class DocumentsController(
     IStorageService storageService, IDatabaseService<DocumentMetadata> documentRepository, RabbitMQPublisher publisher) : ControllerBase
 {

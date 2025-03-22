@@ -135,6 +135,10 @@ The full list of the available configurations can be found in [configurations.md
    dotnet run --project Api
    ```
 
+5. Access the user and administrator interfaces ([screenshots](docs/client-ui/)):
+   - To engage with the chat interface, navigate to: http://127.0.0.1:5229/chat.html
+   - For administrative functions (document upload), visit: http://127.0.0.1:5229/admin.html
+
 ## API Usage
 
 ### Endpoints
@@ -157,6 +161,8 @@ The full list of the available configurations can be found in [configurations.md
 
 
 ### Example Requests
+
+You can explore all of the available example requests in the [.restclient](/.restclient) directory.
 
 #### **Chat Request**
 ```http
@@ -199,10 +205,8 @@ Access services at:
 
 ## Future Enhancements
 
-- [ ] Fault tolerance patterns (Retries/Circuit Breakers)
-- [ ] Authentication/Authorization
-- [ ] Cloud deployment templates
-- [ ] Monitoring/Logging integration
-- [ ] Guard rails (content filtering)
 - [ ] Advanced document processing
 - [ ] Automated question-answer extraction from ingested documents for the semantic cache
+- [ ] Guard rails (content filtering)
+- [ ] Running summary of conversation history
+- [ ] Fault tolerance patterns (Retries/Circuit Breakers)

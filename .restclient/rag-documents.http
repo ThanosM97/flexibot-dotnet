@@ -1,0 +1,64 @@
+### Upload File
+POST http://localhost:5229/documents/upload
+Content-Type: multipart/form-data; boundary=boundary123
+
+--boundary123
+Content-Disposition: form-data; name="files"; filename="DATA.docx"
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+< ./DATA.docx
+--boundary123
+Content-Disposition: form-data; name="language"
+
+english
+--boundary123
+Content-Disposition: form-data; name="tags"
+
+tag1,tag2
+--boundary123--
+
+
+### Upload Multiple Files
+POST http://localhost:5229/documents/upload
+Content-Type: multipart/form-data; boundary=boundary123
+
+--boundary123
+Content-Disposition: form-data; name="files"; filename="DATA.docx"
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+< ./DATA.docx
+--boundary123
+Content-Disposition: form-data; name="files"; filename="AI.docx"
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+< ./AI.docx
+--boundary123
+Content-Disposition: form-data; name="language"
+
+english
+--boundary123
+Content-Disposition: form-data; name="tags"
+
+tag1,tag2
+--boundary123--
+
+
+### Get job status
+@documentId = <document_id>
+GET http://localhost:5229/documents/status/{{documentId}} HTTP/1.1
+Content-Type: text/plain
+
+
+### List Documents
+GET http://localhost:5229/documents/list HTTP/1.1
+Content-Type: text/plain
+
+
+### Get Document
+GET http://localhost:5229/documents/download/{{documentId}} HTTP/1.1
+Content-Type: text/plain
+
+
+### Delete Document
+DELETE http://localhost:5229/documents/delete/{{documentId}} HTTP/1.1
+Content-Type: text/plain

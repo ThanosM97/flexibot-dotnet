@@ -47,7 +47,7 @@ namespace Shared.Models
         public string? Extension { get; set; }
 
         /// <summary>
-        /// Gets or sets the size of the document in bytes.
+        /// Gets or sets the size of the document in kilo bytes.
         /// </summary>
         [Column("size")]
         public double Size { get; set; }
